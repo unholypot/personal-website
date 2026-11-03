@@ -1535,6 +1535,42 @@ html.dark .timeline-detail-list li::before {
   color: var(--clr-primary);
 }
 
+/* Figures: images keep a white backing so charts read in both themes */
+.timeline-detail-figure {
+  margin: 0.5rem 0 1rem;
+}
+
+.timeline-detail-figure:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-detail-figure a {
+  display: block;
+  border-radius: var(--radius-sm);
+}
+
+.timeline-detail-figure a:focus-visible {
+  outline: 2px solid var(--clr-secondary);
+  outline-offset: 3px;
+}
+
+.timeline-detail-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #fff;
+  border: 2px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.timeline-detail-figure figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--clr-text-2);
+  line-height: 1.5;
+}
+
 /* Link buttons row */
 .timeline-detail-links {
   display: flex;

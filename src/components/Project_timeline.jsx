@@ -59,36 +59,50 @@ const panelVariants = {
      overview    – detailed project overview for the expanded panel
      role        – what you did / your contribution
      highlights  – array of key technical bullet points
+     figures     – optional array of { src, width, height, alt, caption }
      outcome     – optional result or status string
      links       – { github, liveDemo, report } — set to null to hide
    ────────────────────────────────────────────────────────── */
 const timelineEntries = [
   {
-year: "2026",
-title: "Honours Research",
-description:
-"Applying AI and computer vision techniques to detect and analyse bubble behaviour in water electrolyser imagery, with a focus on segmentation, annotation, and model comparison.",
-tags: ["Research", "Computer Vision", "AI/ML", "Segmentation"],
-
-overview:
-"My honours thesis focuses on using machine learning and computer vision to analyse bubbles in high-speed electrolyser video data. The project involves reviewing existing bubble detection methods, preparing annotated datasets, and exploring segmentation-based approaches for identifying small, overlapping, and densely packed bubbles. The work sits at the intersection of applied AI, image analysis, and engineering research.",
-
-role:
-"Student researcher. I worked on the project proposal, literature review, dataset preparation, CVAT polygon annotation, and methodology development. I also investigated computer vision and deep learning approaches including YOLO-based detection, U-Net-style segmentation, Mask R-CNN, and related bubble analysis pipelines.",
-
-highlights: [
-"Reviewed classical image processing and deep learning methods for bubble detection",
-"Annotated high-speed electrolyser frames using CVAT polygon segmentation",
-"Explored YOLO-based detection, U-Net, Mask R-CNN, and instance segmentation approaches",
-"Developed the planned workflow for dataset preparation, model training, evaluation, and bubble measurement"
-],
-
-outcome:
-"Ongoing. Semester 1 focused on research planning, literature review, dataset annotation, and methodology development. The next stage involves model training, evaluation, and comparison using segmentation metrics such as IoU, mAP, precision, and recall.",
-
-links: { github: null, liveDemo: null, report: null },
-}
-,
+    year: "2026",
+    title: "Honours Thesis: Bubble Analysis",
+    description:
+      "My QUT honours thesis on measuring bubbles in high-speed water electrolyser video. I built a dataset of 37,388 audited bubble labels, compared Mask R-CNN and StarDist models, and got gas coverage and Sauter mean diameter to within about 3% of the labels.",
+    tags: ["Research", "Computer Vision", "PyTorch", "Detectron2", "TensorFlow", "Instance Segmentation"],
+    overview:
+      "Machine Learning for Bubble Analysis in Water Electrolysers, my honours thesis at QUT. Bubbles on the electrode block active area and reduce efficiency, so their size and coverage need measuring, but video at about 2,000 fps with tiny bubbles on a textured mesh can't be measured by hand. I built and tested a pipeline that outlines each bubble automatically, then checked which of its measurements can actually be trusted. Supervised by Dr Simon Denman and Assoc Prof Dezso Sera.",
+    role:
+      "Student researcher. I labelled frames in CVAT as one of three annotators, built the data and training pipeline (adapted from the research group's workflow), trained and evaluated every model, ran the measurement and annotator agreement analyses, and wrote the report.",
+    highlights: [
+      "Built the dataset from one high-speed recording: rebuilt the frames from the video, verified alignment, audited three annotators' CVAT polygon exports with every removal logged, and ended up with 37,388 bubble labels, split by whole sequences (about 67/17/17%) to avoid leakage",
+      "Trained Mask R-CNN (Detectron2, PyTorch, ResNet-50 FPN, fine-tuned from COCO weights) at 0.74×, 1.5× and 2.0× input scale, StarDist from scratch in TensorFlow, and a hybrid of the two, making every choice on validation and testing each model once on a held-out test set",
+      "Enlarging the input to 1.5× took Mask R-CNN's test mask AP from 40.4 at default resolution to 45.1 ± 0.2 over three seeds, with F1 0.80. StarDist reached 43.5 and the hybrid gave no real gain. 2.0× reached 46.7 from tighter outlines, with no more bubbles found",
+      "The 1.5× model found 94-100% of bubbles above 25 px, and overlap wasn't the limit: for 20 px and up, recall was 94% isolated, 97% touching and 96% overlapping. Below 15 px every model found almost nothing",
+      "Gas coverage and Sauter mean diameter came out within about 3% of the labels, so those are reliable. Bubble count ran about 20% low and mean diameter about 20% high, because the missed bubbles are numerous but tiny, so those two aren't",
+      "Measured how much people agree: counts differed by 28% on identical frames, and annotators agreed with each other at F1 about 0.68 while the model agreed with each at about 0.75. Below 10 px only 20% of one person's labels were confirmed by another, against about 96% at 25-40 px",
+      "Also tried classical background subtraction. It gave about 5× contrast on bubbles, but thresholding produced fragments rather than separate bubbles, so it can't replace instance segmentation",
+    ],
+    figures: [
+      {
+        src: "/assets/thesis_frame_labels_vs_predictions.webp",
+        width: 1152,
+        height: 1080,
+        alt: "Greyscale high-speed frame of a circular electrode mesh with dozens of bubbles outlined. Green outlines are hand labels and magenta outlines are model predictions, and most pairs sit almost on top of each other.",
+        caption: "A frame from the held-out test set. Green is the hand labels, magenta is the 1.5× model's predictions.",
+      },
+      {
+        src: "/assets/thesis_recall_by_size.png",
+        width: 1200,
+        height: 630,
+        alt: "Line chart of test recall against labelled bubble size in pixels for five models. All stay near zero below 15 px, climb steeply between 15 and 25 px, and reach about 0.95 or higher above 30 px.",
+        caption: "Test recall by bubble size for all five models. Every one drops away below about 25 px. Grey bars show how many labelled bubbles fall in each size bin.",
+      },
+    ],
+    outcome:
+      "Ran from February to October 2026, with the report submitted in October. On this recording the model can be trusted for coverage and Sauter mean diameter, but not for counts or mean diameter. The small-bubble limit lines up with where people stop agreeing, which is strong evidence, not proof, that the labels are part of the problem, so a consistent labelling rule is the top next step. Everything here comes from one recording, so I don't claim it generalises beyond that.",
+    links: { github: null, liveDemo: null, report: "/assets/Allen_Saji_Honours_Thesis_Report.pdf" },
+  },
   {
     year: "2026",
     title: "Portfolio Website",
@@ -242,6 +256,27 @@ function DetailPanel({ entry }) {
         </div>
       )}
 
+      {entry.figures?.length > 0 && (
+        <div className="timeline-detail-section">
+          <h4 className="timeline-detail-section-title">Figures</h4>
+          {entry.figures.map((fig) => (
+            <figure className="timeline-detail-figure" key={fig.src}>
+              <a href={fig.src} target="_blank" rel="noopener noreferrer">
+                <img
+                  src={fig.src}
+                  width={fig.width}
+                  height={fig.height}
+                  alt={fig.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+              <figcaption>{fig.caption}</figcaption>
+            </figure>
+          ))}
+        </div>
+      )}
+
       {entry.outcome && (
         <div className="timeline-detail-section">
           <h4 className="timeline-detail-section-title">Outcome</h4>
@@ -277,7 +312,7 @@ function DetailPanel({ entry }) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            ⊞ Report
+            ⊞ Read the report
           </a>
         )}
         {!hasLinks && (
