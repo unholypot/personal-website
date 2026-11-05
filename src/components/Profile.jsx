@@ -4,16 +4,20 @@ import {
   fadeUp,
   staggerContainer,
   staggerItem,
+  prefersReducedMotion,
 } from "../utils/motion";
 
 const FULL_NAME = "Allen Saji";
 const TYPING_SPEED = 90; // ms per character
 
 function Profile() {
-  const [displayed, setDisplayed] = useState("");
-  const [done, setDone] = useState(false);
+  const [displayed, setDisplayed] = useState(
+    prefersReducedMotion ? FULL_NAME : ""
+  );
+  const [done, setDone] = useState(prefersReducedMotion);
 
   useEffect(() => {
+    if (prefersReducedMotion) return;
     let i = 0;
     const id = setInterval(() => {
       i++;
@@ -39,12 +43,14 @@ function Profile() {
         </motion.p>
         <motion.h1 className="title" variants={fadeUp}>
           {displayed}
-          <span
-            className={`typewriter-cursor${
-              done ? " typewriter-cursor--blink" : ""
-            }`}
-          >|
-          </span>
+          {!prefersReducedMotion && (
+            <span
+              className={`typewriter-cursor${
+                done ? " typewriter-cursor--blink" : ""
+              }`}
+            >|
+            </span>
+          )}
         </motion.h1>
         <motion.p className="section__text__p2" variants={fadeUp}>
           Computer &amp; Software Systems Engineering Student

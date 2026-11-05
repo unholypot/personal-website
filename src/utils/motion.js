@@ -4,7 +4,7 @@
  */
 
 /** Check reduced-motion preference once at load time */
-const prefersReducedMotion =
+export const prefersReducedMotion =
   typeof window !== "undefined" &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
