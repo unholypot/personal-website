@@ -1016,7 +1016,7 @@ html.dark .contact-info-upper-container:hover {
   height: 2.5rem;
 }
 
-/* ── TAGS (plain labels, not controls) ───────────────────── */
+/* ── TAGS ────────────────────────────────────────────────── */
 .chip {
   display: inline-flex;
   align-items: center;
@@ -1028,6 +1028,23 @@ html.dark .contact-info-upper-container:hover {
   background: var(--clr-surface);
   border: 2px solid var(--clr-border);
   color: var(--clr-text-2);
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Mouse only, so a tag doesn't stay highlighted after a tap. */
+@media (hover: hover) {
+  .chip:hover {
+    background: var(--clr-primary);
+    border-color: var(--clr-primary);
+    color: var(--clr-text);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  html.dark .chip:hover {
+    color: var(--clr-bg-alt);
+  }
 }
 
 /* ── FOOTER ──────────────────────────────────────────────── */
