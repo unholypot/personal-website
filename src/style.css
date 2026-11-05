@@ -10,7 +10,7 @@
 :root {
   /* Brand */
   --clr-primary:   #FFD34E;
-  --clr-secondary: #EE457E;
+  --clr-secondary: #B81C57;
   --clr-accent:    #FF6B35;
 
   /* Light mode surfaces */
@@ -23,7 +23,7 @@
   /* Light mode text */
   --clr-text:      #2A1F0E;
   --clr-text-2:    #5A4526;
-  --clr-text-3:    #9C7D50;
+  --clr-text-3:    #6E5228;
 
   /* Nav */
   --clr-nav-bg:    rgba(244, 232, 209, 0.88);
@@ -57,7 +57,7 @@
   --transition: 220ms var(--ease-out);
 
   /* Scroll offset — matches sticky nav height */
-  --nav-height: 15vh;
+  --nav-height: 4.5rem;
 }
 
 /* ── DARK MODE TOKENS ────────────────────────────────────── */
@@ -242,7 +242,7 @@ nav, .nav-links {
 nav {
   justify-content: space-around;
   align-items: center;
-  height: 15vh;
+  height: var(--nav-height);
   background: var(--clr-nav-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -564,6 +564,16 @@ html.dark .title {
   z-index: 1;
 }
 
+/* Keep the hero underline tied to the name, not the wider row of pills. */
+#profile .title {
+  width: fit-content;
+  margin-inline: auto;
+}
+
+#profile .title::after {
+  width: 100%;
+}
+
 .section__pic-container {
   height: 380px;
   width: 380px;
@@ -594,6 +604,13 @@ html.dark .section__pic-container {
 .section__text__p2 {
   font-size: 1.1rem;
   font-weight: 500;
+  color: var(--clr-text-2);
+  margin-bottom: 0.25rem;
+}
+
+.hero-facts {
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--clr-text-2);
   margin-bottom: 1rem;
 }
@@ -740,7 +757,8 @@ html.dark img[src*="dmode_black.png"] {
     transform 220ms var(--ease-out),
     box-shadow 220ms var(--ease-out);
   padding: 0.8rem 1.4rem;
-  width: 9rem;
+  min-width: 9rem;
+  white-space: nowrap;
   border-radius: var(--radius-pill);
   cursor: pointer;
   text-align: center;
@@ -998,44 +1016,23 @@ html.dark .contact-info-upper-container:hover {
   height: 2.5rem;
 }
 
-/* ── CHIPS / TAGS (for potential future use) ─────────────── */
+/* ── TAGS (plain labels, not controls) ───────────────────── */
 .chip {
   display: inline-flex;
   align-items: center;
-  padding: 0.3rem 0.85rem;
-  font-size: 0.75rem;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.7rem;
   font-weight: 600;
   font-family: var(--font-display);
   border-radius: var(--radius-pill);
   background: var(--clr-surface);
   border: 2px solid var(--clr-border);
   color: var(--clr-text-2);
-  cursor: pointer;
-  transition: var(--transition);
-  box-shadow: var(--shadow-sm);
-}
-
-.chip:hover {
-  background: var(--clr-primary);
-  border-color: var(--clr-primary);
-  color: var(--clr-text);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.chip:focus-visible {
-  outline: 2px solid var(--clr-secondary);
-  outline-offset: 3px;
-}
-
-html.dark .chip:hover {
-  color: var(--clr-bg-alt);
 }
 
 /* ── FOOTER ──────────────────────────────────────────────── */
 footer {
   height: 26vh;
-  margin: 0 1rem;
   border-top: 2px solid var(--clr-border);
   background: var(--clr-bg-alt);
   display: flex;
@@ -1209,15 +1206,6 @@ html.dark .timeline::before {
   padding-left: 2.5rem;
 }
 
-/* Card text alignment by side */
-.timeline-row--left .tl-col--left {
-  text-align: right;
-}
-
-.timeline-row--right .tl-col--right {
-  text-align: left;
-}
-
 /* ── TIMELINE NODE (dot on the line) ───────────────────── */
 /* Centre column containing the dot on the vertical line */
 .tl-center {
@@ -1315,21 +1303,6 @@ html.dark .timeline-year {
   gap: 0.4rem;
 }
 
-.timeline-row--left .tl-col--left .timeline-tags {
-  justify-content: flex-end;
-}
-
-.timeline-row--right .tl-col--right .timeline-tags {
-  justify-content: flex-start;
-}
-
-/* Make chips inside timeline non-clickable & slightly smaller */
-.timeline-tags .chip {
-  cursor: default;
-  font-size: 0.7rem;
-  padding: 0.2rem 0.7rem;
-}
-
 /* ── TIMELINE CARD — INTERACTIVE STATES ─────────────────── */
 .timeline-card {
   cursor: pointer;
@@ -1361,13 +1334,6 @@ html.dark .timeline-node-dot--active {
 /* ── EXPAND HINT (inside card) ───────────────────────────── */
 .timeline-card-expand-hint {
   margin-top: 0.75rem;
-  opacity: 0.5;
-  transition: opacity 200ms ease;
-}
-
-.timeline-card:hover .timeline-card-expand-hint,
-.timeline-card--expanded .timeline-card-expand-hint {
-  opacity: 1;
 }
 
 .timeline-card-chevron {
@@ -1586,13 +1552,6 @@ html.dark .timeline-detail-btn:hover {
   color: var(--clr-text);
 }
 
-/* Muted / disabled state (e.g. "Links Coming Soon") */
-.timeline-detail-btn--muted {
-  opacity: 0.5;
-  cursor: default;
-  pointer-events: none;
-}
-
 /* ── RESPONSIVE ──────────────────────────────────────────── */
 @media screen and (max-width: 1400px) {
   #profile { height: 83vh; margin-bottom: 2rem; }
@@ -1635,7 +1594,6 @@ html.dark .timeline-detail-btn:hover {
   .tl-col--right {
     width: 100%;
     padding: 0;
-    text-align: left;
   }
 
   /* For right rows: bring card (tl-col--right) before panel (tl-col--left) */
@@ -1649,12 +1607,6 @@ html.dark .timeline-detail-btn:hover {
     top: 1.1rem;
     padding: 0;
     display: block;
-  }
-
-  /* All tags left-aligned on mobile */
-  .timeline-row--left .tl-col--left .timeline-tags,
-  .timeline-row--right .tl-col--right .timeline-tags {
-    justify-content: flex-start;
   }
 
   /* Space between card and detail panel when stacked */
@@ -1694,24 +1646,6 @@ html.dark .timeline-detail-btn:hover {
 
   .timeline-card {
     padding: 1.25rem 1.25rem;
-    text-align: left !important;
-  }
-
-  .timeline-card .timeline-year,
-  .timeline-card .timeline-card-title,
-  .timeline-card .timeline-card-desc,
-  .timeline-card .timeline-card-expand-hint,
-  .timeline-card .timeline-card-chevron {
-    text-align: left !important;
-  }
-
-  .timeline-card .timeline-tags {
-    justify-content: flex-start !important;
-  }
-
-  /* Override alternating desktop alignment for left-side cards */
-  .timeline-row--left .tl-col--left .timeline-tags {
-    justify-content: flex-start !important;
   }
 
   .timeline-card-title {

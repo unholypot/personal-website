@@ -55,10 +55,14 @@ function Profile() {
         <motion.p className="section__text__p2" variants={fadeUp}>
           Computer &amp; Software Systems Engineering Student
         </motion.p>
+        <motion.p className="hero-facts" variants={fadeUp}>
+          QUT &middot; Dean's List &middot; Graduating early 2027 &middot; Brisbane
+        </motion.p>
         <motion.div className="status-row" variants={staggerContainer(0.08)}>
           <motion.div className="status-pill" variants={staggerItem}>
             <span className="badge-dot"></span>
-            <span className="status-label">Currently:</span> Working on side projects
+            <span className="status-label">Currently:</span> Building a Raspberry Pi
+            weather mood display with an Enviro+ sensor
           </motion.div>
           <motion.div className="status-pill" variants={staggerItem}>
             Open to internships &amp; graduate roles

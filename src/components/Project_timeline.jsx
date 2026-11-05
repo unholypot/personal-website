@@ -246,43 +246,40 @@ function DetailPanel({ entry }) {
         </div>
       )}
 
-      <div className="timeline-detail-links">
-        {github && (
-          <a
-            href={github}
-            className="timeline-detail-btn"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            ↗ GitHub
-          </a>
-        )}
-        {liveDemo && (
-          <a
-            href={liveDemo}
-            className="timeline-detail-btn"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            ↗ Live Demo
-          </a>
-        )}
-        {report && (
-          <a
-            href={report}
-            className="timeline-detail-btn"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            ⊞ Read the report
-          </a>
-        )}
-        {!hasLinks && (
-          <span className="timeline-detail-btn timeline-detail-btn--muted">
-            No external links available
-          </span>
-        )}
-      </div>
+      {hasLinks && (
+        <div className="timeline-detail-links">
+          {github && (
+            <a
+              href={github}
+              className="timeline-detail-btn"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ↗ GitHub
+            </a>
+          )}
+          {liveDemo && (
+            <a
+              href={liveDemo}
+              className="timeline-detail-btn"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ↗ Live Demo
+            </a>
+          )}
+          {report && (
+            <a
+              href={report}
+              className="timeline-detail-btn"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ⊞ Read the report
+            </a>
+          )}
+        </div>
+      )}
     </div>
   );
 }
