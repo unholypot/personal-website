@@ -39,6 +39,8 @@ const domains = [
       "LTspice",
       "AWS",
       "Linux / WSL",
+      "PyTorch",
+      "Detectron2",
       "TensorFlow / Keras",
       "REST APIs",
       "AutoCAD / KiCad / Eagle",

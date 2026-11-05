@@ -90,10 +90,10 @@ const timelineEntries = [
     year: "2026",
     title: "Portfolio Website",
     description:
-      "A fully custom portfolio site with a retro-inspired design system and an interactive project timeline that adapts to how you're browsing — built from scratch with no UI framework.",
+      "A fully custom portfolio site with a retro-inspired design system and an interactive project timeline that adapts to how you're browsing.",
     tags: ["React", "Vite", "Framer Motion", "CSS"],
     overview:
-      "The site you're reading right now. I wanted a portfolio that didn't look like every other Tailwind templates, so I built this one from the ground up. The goal was to make something that felt personal, loaded fast, and actually showed off the kind of frontend work I enjoy doing.",
+      "The site you're reading right now. I wanted a portfolio that didn't look like every other Tailwind template, so I built this one from the ground up. The goal was to make something that felt personal, loaded fast, and actually showed off the kind of frontend work I enjoy doing.",
     role:
       "Sole designer and developer. I owned every decision, from the design language and component architecture to the timeline interaction model, theming system, and deployment setup.",
     highlights: [
@@ -116,7 +116,7 @@ const timelineEntries = [
     role:
       "Sole developer responsible for the architecture, async pipeline, ML integration, and full AWS deployment across EC2 and ECS Fargate.",
     highlights: [
-      "Split the platform into two independent containerised services, a stateless API tier and an ML processing tier each with its own ECS Fargate task definition and resources tuned to its workload",
+      "Split the platform into two independent containerised services: a stateless API tier and an ML processing tier, each with its own ECS Fargate task definition and resources tuned to its workload",
       "Built an asynchronous SQS pipeline to decouple user uploads from ML inference, so the API returns immediately while workers pull jobs independently; implemented retry logic with a Dead Letter Queue to isolate failing jobs after three attempts",
       "Integrated a neural network background removal model into the processor service, with job status tracked through PostgreSQL on RDS so the frontend can poll for completion without holding open connections to the processing tier",
       "Secured the platform with AWS Cognito authentication and served all images through S3 pre-signed URLs, so image data flows directly between the browser and S3 without ever touching the API servers — keeping the compute tier stateless and horizontally scalable",

@@ -52,11 +52,10 @@ function Profile() {
         <motion.div className="status-row" variants={staggerContainer(0.08)}>
           <motion.div className="status-pill" variants={staggerItem}>
             <span className="badge-dot"></span>
-            <span className="status-label">Currently:</span> Finishing my honours
-            thesis &mdash; machine learning for bubble analysis in water electrolysers
+            <span className="status-label">Currently:</span> Working on side projects
           </motion.div>
           <motion.div className="status-pill" variants={staggerItem}>
-            Open to internships
+            Open to internships &amp; graduate roles
           </motion.div>
         </motion.div>
         <motion.div
