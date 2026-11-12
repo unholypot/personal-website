@@ -1,8 +1,20 @@
+:root {
+  --cream: #f2e6ce;
+  --orange: #d9532b;
+  --mustard: #e3a72f;
+  --teal: #2f8f8b;
+  --navy: #14213d;
+  --ink: #0b1220;
+  /* the paper border */
+  --edge: clamp(10px, 2.2vw, 28px);
+  --gutter: clamp(16px, 4vw, 56px);
+}
+
 html,
 body {
   margin: 0;
-  background: #14213d;
-  color: #f2e6ce;
+  background: var(--navy);
+  color: var(--cream);
 }
 
 /* The scene sits fixed behind the page. lvh, so a phone's toolbar sliding away never resizes it. */
@@ -19,4 +31,177 @@ body {
 .track {
   height: 600vh;
   height: 600lvh;
+}
+
+/* ---------- Captions: set like the lettering at the foot of a travel poster ---------- */
+.captions {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.caption {
+  position: absolute;
+  left: calc(var(--edge) + var(--gutter));
+  right: calc(var(--edge) + var(--gutter));
+  bottom: calc(var(--edge) + clamp(20px, 6vh, 64px));
+  max-width: 46rem;
+  will-change: opacity, transform;
+}
+
+.caption-kicker {
+  display: inline-block;
+  margin: 0 0 0.7rem;
+  padding: 0.38em 0.8em 0.26em;
+  background: var(--mustard);
+  color: var(--ink);
+  font: 600 0.78rem/1 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.caption-title {
+  margin: 0;
+  color: var(--cream);
+  font: 400 clamp(2.6rem, 9vw, 7.5rem) / 0.92 'Bebas Neue', Impact, sans-serif;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  /* a hard offset shadow, like a second ink pass printed out of register */
+  text-shadow: 0.045em 0.045em 0 var(--ink);
+  text-wrap: balance;
+}
+
+.caption-body {
+  margin: 0.9rem 0 0;
+  max-width: 34ch;
+  padding: 0.85em 1em 0.7em;
+  background: var(--ink);
+  color: var(--cream);
+  font: 400 clamp(0.95rem, 1.25vw, 1.1rem) / 1.5 'Josefin Sans', system-ui, sans-serif;
+}
+
+.caption-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.caption-links a {
+  display: inline-block;
+  padding: 0.62em 1em 0.48em;
+  border: 2px solid var(--ink);
+  background: var(--cream);
+  color: var(--ink);
+  font: 600 0.82rem/1 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.16em;
+  text-decoration: none;
+  text-transform: uppercase;
+  pointer-events: auto;
+  box-shadow: 4px 4px 0 var(--ink);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.caption-links li:first-child a {
+  background: var(--orange);
+  color: var(--cream);
+}
+
+.caption-links a:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.caption-links a:focus-visible {
+  outline: 3px solid var(--mustard);
+  outline-offset: 3px;
+}
+
+/* ---------- The paper: border, darkened corners, grain ---------- */
+.poster-frame {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(11, 18, 32, 0.45) 100%);
+}
+
+/* Plain alpha, no blend mode and no filter: one cheap layer. It is larger than the screen
+   so it can jump about without showing an edge. */
+.grain {
+  position: absolute;
+  inset: -120px;
+  will-change: transform;
+  animation: grain-jump 0.48s steps(1) infinite;
+}
+
+@keyframes grain-jump {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(57px, -41px);
+  }
+  50% {
+    transform: translate(-38px, 66px);
+  }
+  75% {
+    transform: translate(33px, 44px);
+  }
+}
+
+.edge {
+  position: absolute;
+  background: var(--cream);
+}
+
+.edge-top,
+.edge-bottom {
+  left: 0;
+  right: 0;
+  height: var(--edge);
+}
+
+.edge-left,
+.edge-right {
+  top: 0;
+  bottom: 0;
+  width: var(--edge);
+}
+
+.edge-top {
+  top: 0;
+}
+
+.edge-bottom {
+  bottom: 0;
+}
+
+.edge-left {
+  left: 0;
+}
+
+.edge-right {
+  right: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain {
+    animation: none;
+  }
+
+  .caption-links a {
+    transition: none;
+  }
 }
