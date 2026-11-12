@@ -1,19 +1,27 @@
 // The shared look of everything built from flat faces: vertex colours, a fade toward the sky
 // with distance, and grain that is part of the picture.
-import { ShaderMaterial, Vector3, DoubleSide } from 'three'
+import { ShaderMaterial, Vector3, DoubleSide, FrontSide } from 'three'
 
 // One set of uniform objects, referenced by every material, so a single update per frame reaches all.
 export const shared = {
   uSky: { value: new Vector3(0.078, 0.129, 0.239) },
   uTime: { value: 0 },
+  // Device pixels per CSS pixel, so grain and stipple keep their size on sharp screens.
+  uDpr: { value: 1 },
+  // Point-size scale for particles: buffer pixels per world unit at distance 1.
+  uPx: { value: 800 },
 }
+
+// Switched off for visitors who ask for reduced motion: idle animation stops.
+export const motion = { on: true }
 
 // Blocky grain, a faint scanline on every third row, and one slow band drifting up the screen.
 export const GRAIN_GLSL = /* glsl */ `
 uniform float uTime;
+uniform float uDpr;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 vec3 grain(vec3 c) {
-  vec2 x = gl_FragCoord.xy;
+  vec2 x = gl_FragCoord.xy / uDpr;
   c += (hash(floor(x / 1.5)) - 0.5) * 0.04;
   if (mod(floor(x.y), 3.0) == 2.0) c *= 0.95;
   c += 0.03 * smoothstep(0.94, 1.0, fract(x.y * 0.0009 - uTime * 0.05));
@@ -47,10 +55,11 @@ export function createSceneMaterial({ fogNear = 200, fogFar = 2500, doubleSided 
     vertexShader: VERT,
     fragmentShader: FRAG,
     vertexColors: true,
-    side: doubleSided ? DoubleSide : undefined,
+    side: doubleSided ? DoubleSide : FrontSide,
     uniforms: {
       uSky: shared.uSky,
       uTime: shared.uTime,
+      uDpr: shared.uDpr,
       uFogNear: { value: fogNear },
       uFogFar: { value: fogFar },
     },

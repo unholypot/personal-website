@@ -66,6 +66,23 @@ describe('createBuilder', () => {
     }
     expect(minusX).toBeGreaterThan(plusX)
   })
+  it('annulus is one flat colour, in the given arc', () => {
+    const b = createBuilder()
+    b.annulus([0, 5, 0], 2, 4, 12, PALETTE.mustard, 0, Math.PI)
+    expect(b.positions.length).toBe(12 * 6 * 3)
+    const c = rgb(PALETTE.mustard)
+    for (let i = 0; i < b.colors.length; i += 3) c.forEach((v, k) => expect(b.colors[i + k]).toBeCloseTo(v, 6))
+    for (let i = 0; i < b.positions.length; i += 3) {
+      expect(b.positions[i + 1]).toBe(5)
+      expect(b.positions[i + 2]).toBeGreaterThanOrEqual(-1e-9)
+      const r = Math.hypot(b.positions[i], b.positions[i + 2])
+      expect(r).toBeGreaterThan(1.99)
+      expect(r).toBeLessThan(4.01)
+    }
+  })
+  it('rgb passes an rgb triple through', () => {
+    expect(rgb([0.1, 0.2, 0.3])).toEqual([0.1, 0.2, 0.3])
+  })
   it('toGeometry carries position and color', () => {
     const b = createBuilder()
     b.box([0, 0, 0], [1, 1, 1], TONES.rock)

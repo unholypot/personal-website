@@ -22,7 +22,9 @@ export const TONES = {
   silhouette: [ink, ink, ink],
 }
 
+// Hex string to [r, g, b] in 0..1. A triple that is already rgb passes through.
 export function rgb(hex) {
+  if (Array.isArray(hex)) return hex
   const n = parseInt(hex.slice(1), 16)
   return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255]
 }

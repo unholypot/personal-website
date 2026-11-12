@@ -118,6 +118,18 @@ export function createBuilder() {
     for (let i = 1; i < points.length - 1; i++) [points[0], points[i], points[i + 1]].forEach((p) => push(p, col))
   }
 
+  // A flat ring (or arc of one, or a disc when inner is 0) lying level, in one colour.
+  function annulus(center, inner, outer, segments, color, start = 0, sweep = Math.PI * 2) {
+    const col = rgb(color)
+    const at = (r, a) => [center[0] + Math.cos(a) * r, center[1], center[2] + Math.sin(a) * r]
+    for (let i = 0; i < segments; i++) {
+      const a0 = start + (sweep * i) / segments
+      const a1 = start + (sweep * (i + 1)) / segments
+      const q = [at(inner, a0), at(outer, a0), at(outer, a1), at(inner, a1)]
+      ;[q[0], q[2], q[1], q[0], q[3], q[2]].forEach((p) => push(p, col))
+    }
+  }
+
   function toGeometry() {
     const g = new BufferGeometry()
     g.setAttribute('position', new Float32BufferAttribute(positions, 3))
@@ -126,5 +138,5 @@ export function createBuilder() {
     return g
   }
 
-  return { positions, colors, quad, box, lathe, flat, toGeometry }
+  return { positions, colors, quad, box, lathe, flat, annulus, toGeometry }
 }
