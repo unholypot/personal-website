@@ -4,3 +4,19 @@ body {
   background: #14213d;
   color: #f2e6ce;
 }
+
+/* The scene sits fixed behind the page. lvh, so a phone's toolbar sliding away never resizes it. */
+.stage {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100lvh;
+  pointer-events: none;
+}
+
+/* The scroll length: five screens of travel between the five stops. */
+.track {
+  height: 600vh;
+  height: 600lvh;
+}
