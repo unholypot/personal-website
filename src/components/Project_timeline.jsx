@@ -93,15 +93,18 @@ const timelineEntries = [
       "A 364 g drone payload that monitors air quality, reads pressure gauges and drills soil samples, built by a five-person team. I was project manager and air quality lead.",
     tags: ["Raspberry Pi 5", "Python", "MQTT", "I2C / SPI", "Systems Engineering", "Project Management"],
     overview:
-      "A team project to build a drone payload that monitors air quality, reads pressure gauges and drills soil samples, all in 364 g. The payload is split into four subsystems that had to work together as one unit and meet the customer's requirements.",
+      "A QUT team project to build a drone payload for inspecting a plant where GPS isn't available. It monitors air quality for gas leaks, reads pressure gauges and valve states with a camera, and drills a soil sample when the conditions call for it, all in 364 g. The payload is split into four subsystems (air quality, target detection, web dashboard, and enclosure and drill) that run on one Raspberry Pi 5 and had to work together as one unit.",
     role:
-      "Project manager and air quality lead in a five-person team. I led the systems engineering across all four subsystems and wrote the air quality sensor software.",
+      "Project manager and air quality lead in a five-person team. I ran the planning, schedule and weekly meetings, led the systems engineering across all four subsystems, and wrote the air quality sensor and display software.",
     highlights: [
-      "Defined the interfaces and communication standards between the four subsystems, and verified the integrated payload against the customer's requirements",
-      "Wrote embedded Python on a Raspberry Pi 5 to sample temperature, humidity, pressure, light and gas over I2C, correcting the temperature reading for heat from the CPU",
-      "Streamed telemetry over MQTT to the ground station dashboard",
-      "Built an SPI LCD controller that shows live sensor data and detection images, switched remotely from the dashboard",
+      "Defined the interfaces and communication standards between the four subsystems, so each one talks to the others through a single MQTT broker on the Pi and could be built and tested on its own",
+      "Verified the integrated payload against the customer's requirements, linking each requirement to the test or demonstration that proved it",
+      "Wrote embedded Python on a Raspberry Pi 5 to sample temperature, humidity, pressure, light and gas over I2C every second, correcting the temperature reading for heat from the CPU and holding back gas readings until the sensor has warmed up",
+      "Streamed telemetry over MQTT to the ground station dashboard, while logging every sample on the Pi so no data is lost if the network drops",
+      "Built an SPI LCD controller that shows the Pi's IP address, live sensor data and the latest detection images, switched remotely from the dashboard or with a hand wave over the proximity sensor",
     ],
+    outcome:
+      "Delivered in October 2026 at 364 g, 46 g under the 410 g limit and within the $600 budget. The payload flew in the final acceptance test, sending live air quality data and target detections to the ground station.",
     links: { github: null, liveDemo: null, report: null },
   },
   {
@@ -127,7 +130,7 @@ const timelineEntries = [
     year: "2025",
     title: "Cloud Background Removal System",
     description:
-      "A cloud-native background removal platform built on AWS as two independent microservices — a stateless API tier and an ML processing tier — connected by an asynchronous queue pipeline with retry logic and fault isolation.",
+      "A cloud-native background removal platform built on AWS as two independent microservices, a stateless API tier and an ML processing tier, connected by an asynchronous queue pipeline with retry logic and fault isolation.",
     tags: ["AWS", "ECS Fargate", "SQS", "Node.js", "Docker", "PostgreSQL"],
     overview:
       "A full-stack cloud project built as part of CAB432 Cloud Computing at QUT, where I wanted to explore and implement an application starting from scratch using the full range of available AWS services. The result is a background removal service split across two independent containerised services.",
@@ -137,7 +140,7 @@ const timelineEntries = [
       "Split the platform into two independent containerised services: a stateless API tier and an ML processing tier, each with its own ECS Fargate task definition and resources tuned to its workload",
       "Built an asynchronous SQS pipeline to decouple user uploads from ML inference, so the API returns immediately while workers pull jobs independently; implemented retry logic with a Dead Letter Queue to isolate failing jobs after three attempts",
       "Integrated a neural network background removal model into the processor service, with job status tracked through PostgreSQL on RDS so the frontend can poll for completion without holding open connections to the processing tier",
-      "Secured the platform with AWS Cognito authentication and served all images through S3 pre-signed URLs, so image data flows directly between the browser and S3 without ever touching the API servers — keeping the compute tier stateless and horizontally scalable",
+      "Secured the platform with AWS Cognito authentication and served all images through S3 pre-signed URLs, so image data flows directly between the browser and S3 without ever touching the API servers, keeping the compute tier stateless and horizontally scalable",
       "Deployed the frontend on EC2 and the backend services behind an Application Load Balancer with HTTPS and a custom domain, with ECS auto-scaling policies driving task count based on CPU utilisation",
     ],
     outcome:
@@ -153,7 +156,7 @@ const timelineEntries = [
     overview:
       "A detailed engineering analysis of a commercial 5 kW grid-tied solar PV inverter. Working with a partner, we reverse-engineered the inverter's internal architecture from physical measurements and datasheet specifications, then reconstructed and simulated both of its power conversion stages. The project focused on modelling the DC-DC boost converter, designing the single-phase full-bridge DC-AC inverter stage, and evaluating converter efficiency, switching behaviour, and output waveform quality using simulation tools.",
     role:
-      "Power electronics analysis and simulation — contributed to inverter architecture reverse engineering, LTspice circuit modelling, MATLAB-based analysis, and design of efficiency improvements.",
+      "Power electronics analysis and simulation. I contributed to inverter architecture reverse engineering, LTspice circuit modelling, MATLAB-based analysis, and design of efficiency improvements.",
 
     highlights: [
     "Reverse-engineered the internal architecture of a commercial 5 kW grid-tied PV inverter from physical measurements and datasheet specifications",
@@ -163,7 +166,7 @@ const timelineEntries = [
     "Proposed a snubber circuit to significantly reduce switching losses in the boost MOSFET, and identified synchronous rectification as a further efficiency improvement path"
     ],
     outcome:
-       "Developed validated simulation models of both the boost converter and full-bridge inverter stages, and identified concrete design improvements — including a snubber circuit and synchronous rectification — to reduce switching losses and improve overall efficiency.",
+       "Developed validated simulation models of both the boost converter and full-bridge inverter stages, and identified concrete design improvements, including a snubber circuit and synchronous rectification, to reduce switching losses and improve overall efficiency.",
     links: { github: null, liveDemo: null, report: null },
   },
 ];
@@ -374,7 +377,7 @@ function Timeline() {
               role="button"
               tabIndex={0}
               aria-expanded={isMobile ? isMobileOpen : isDesktopOpen}
-              aria-label={`${entry.title} — ${(isMobile ? isMobileOpen : isDesktopOpen) ? "collapse" : "expand"} details`}
+              aria-label={`${entry.title}: ${(isMobile ? isMobileOpen : isDesktopOpen) ? "collapse" : "expand"} details`}
               onClick={() =>
                 isMobile
                   ? handleMobileToggle(entry.title)
