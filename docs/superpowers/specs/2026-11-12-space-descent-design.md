@@ -47,7 +47,7 @@ Scroll progress `p` runs from 0 at the top to 1 at the bottom. Five stops sit at
 |---|---|---|---|---|
 | 1. Deep space | 0.00 | Stars; the ringed giant small and far off; the craft enters trailing its ribbon | Name | One-line intro |
 | 2. Approach | 0.25 | The giant fills half the frame, cropped by the edge; an orbital station with large solar arrays passes close | Solar Inverter Analysis | One or two lines, year |
-| 3. Entry | 0.50 | The camera skims the rings, then drops through banded cloud layers of the moon | Cloud Background Removal System | One or two lines, year |
+| 3. Entry | 0.50 | The camera tips down toward the moon and drops through its banded cloud layers | Cloud Background Removal System | One or two lines, year |
 | 4. Low flight | 0.75 | Layered terrain silhouettes slide past; a survey drone flies alongside | UAV Air Quality & Target Detection Payload | One or two lines, year |
 | 5. Landing | 1.00 | A base of glass dome habitats; a small astronaut silhouette on a rocky ridge; the giant and its other moons fill the sky | Honours Thesis: Bubble Analysis | One or two lines, then contact links and a link to the full portfolio |
 
@@ -67,12 +67,26 @@ Palette (the only colours used):
 | Ink | `#0B1220` | Foreground silhouettes, text on light |
 
 Rules:
-- No realistic lighting. Every surface is one palette colour, or two separated by a stippled edge.
-- Shading is stipple. The shadow side of the giant and its moons dissolves into dots through a dither pattern in the fragment shader.
+- No realistic lighting. Built objects use three-tone flat shading (see "Techniques taken from the reference site"); round bodies use stipple.
+- The shadow side of the giant and its moons dissolves into dots through a dither pattern in the fragment shader.
 - The craft trails a ribbon of three alternating stripes along the whole descent path. It is the visual thread through all five stops.
 - Terrain is stacked flat silhouette layers at different depths, which part as the camera drops.
-- A paper-grain overlay covers the page. It is a small tiled image in plain alpha, with no blend modes or CSS filters, so scrolling stays on the compositor.
+- Grain is applied in two layers, described in the next section.
 - A cream paper border frames the viewport. The title sits in the lower third in a condensed display face (Bebas Neue); captions use a geometric sans (Josefin Sans). Both are SIL Open Font Licence and self-hosted as woff2.
+
+## Techniques taken from the reference site
+
+These were read from the source of 0z5a.github.io. Each is reimplemented here in our own code with our own values; the ideas are reused, the code is not.
+
+1. **Three-tone faces (the blocky look).** Every material has exactly three tones: lit, mid and shadow. Each flat face takes one of them from the angle between its normal and a single fixed light direction (lit above roughly 0.4, shadow below roughly -0.1, mid between). There are no gradients across a face. The tone is worked out once when the geometry is built and stored as a vertex colour, so it costs nothing per frame.
+2. **Distance fade to the sky colour.** Each vertex's colour is mixed toward the background colour by its distance from the camera. Far objects sink into the sky, which gives depth without lighting. The sky is not a textured skybox: it is one flat colour, plus the fade, plus particles.
+3. **Motes.** A few hundred soft points (fewer on phones) fill a box that wraps around the camera, so the air is equally full wherever the camera is. Each drifts and twinkles slowly and fades before the box edge. In space they read as stars and dust; near the surface as drifting dust.
+4. **In-scene grain.** The fragment shader adds a small random offset per block of about 1.5 screen pixels, darkens every third row slightly as a scanline, and passes one faint slow-moving band up the screen. The grain is therefore part of the picture, at a fixed blocky size on any screen.
+5. **Overlay grain and vignette.** Above the whole page sits a small canvas-generated tile of sparse light and dark specks at low alpha, repeated, and shifted to a new offset about eight times a second in hard steps so it flickers like film. A radial vignette darkens the corners. Both use plain alpha with no blend modes or CSS filters, so they cost the compositor one layer and scrolling stays smooth.
+6. **Camera stops.** Each stop is a camera position, a look-at target and a field of view. A Catmull-Rom spline runs through them by scroll progress. Portrait screens get a wider field of view. Smoothing is time-based so it feels identical at any refresh rate.
+7. **Arrival.** On load the first view starts raised above its place and eases down onto it once the scene has warmed up.
+
+For the poster palette, each material's three tones come from the six colours: for example the station is cream, mustard and navy; the terrain layers are teal, navy and ink.
 
 ## Architecture
 
@@ -88,6 +102,11 @@ Everything new lives under `src/descent/` and `descent/`. Each unit has one job.
 | `src/descent/scroll/useScrollProgress.js` | Hook that reads scroll, applies damping per frame, exposes `p` through a ref | `progress.js` |
 | `src/descent/scene/palette.js` | The six colours | none |
 | `src/descent/scene/cameraPath.js` | Pure: keyframes (position, target, field of view) and `sampleCamera(p, aspect)` | none |
+| `src/descent/scene/layout.js` | Pure: where everything is in the world, and the descent path the craft and ribbon follow | none |
+| `src/descent/scene/build.js` | Pure: three-tone geometry builder (quads, boxes, lathes) and a seeded random source | palette |
+| `src/descent/scene/sceneMaterial.js` | The shared material: vertex colours, distance fade, in-scene grain | three |
+| `src/descent/ui/grainTile.js` | Pure: pixel data for the overlay grain tile | none |
+| `src/descent/webgl.js` | Detects whether WebGL is available | none |
 | `src/descent/scene/Scene.jsx` | Composes the objects, drives the camera from `p` each frame | objects, `cameraPath.js` |
 | `src/descent/scene/shaders/stipple.js` | Stipple-shaded sphere material | three |
 | `src/descent/scene/objects/*.jsx` | One file each: `Starfield`, `GiantPlanet`, `Rings`, `Station`, `CloudBands`, `Terrain`, `Drone`, `DomeBase`, `Astronaut`, `TrailRibbon` | three, palette |
@@ -101,7 +120,7 @@ Data flow: scroll position, to `useScrollProgress`, to a damped `p` held in a re
 
 ### Camera
 
-`cameraPath.js` holds one keyframe per stop plus a few in-between ones for the ring skim and cloud drop. `sampleCamera` interpolates position and target with a Catmull-Rom spline and field of view linearly. On tall (phone) aspect ratios it widens the field of view and shifts the target so the focal object stays in frame. Damping is time-based (`1 - exp(-dt / tau)`), so the feel is the same at 60 and 120 Hz.
+`cameraPath.js` holds one keyframe per stop plus a few in-between ones for the tip toward the moon and the final approach. `sampleCamera` interpolates position and target with a Catmull-Rom spline and field of view linearly. On tall (phone) aspect ratios it widens the field of view and shifts the target so the focal object stays in frame. Damping is time-based (`1 - exp(-dt / tau)`), so the feel is the same at 60 and 120 Hz.
 
 ### Models
 
@@ -144,4 +163,4 @@ Manual, in the browser:
 
 ## Open points
 
-- Deployment is unconfirmed. The site includes Vercel analytics, so the branch probably gets a preview URL automatically, but this has not been checked. The spec does not depend on it.
+- Deployment is deferred. This version runs on localhost only (`npm run dev`, then `/descent/`). Nothing is pushed. Hosting on Vercel is decided once it looks and feels right.
