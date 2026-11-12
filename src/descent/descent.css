@@ -100,7 +100,7 @@ html.descent-snap .track-stop {
   left: calc(var(--edge) + var(--gutter));
   right: calc(var(--edge) + var(--gutter));
   bottom: calc(var(--edge) + clamp(20px, 6vh, 64px));
-  max-width: 46rem;
+  max-width: 40rem;
   will-change: opacity, transform;
 }
 
@@ -118,7 +118,7 @@ html.descent-snap .track-stop {
 .caption-title {
   margin: 0;
   color: var(--cream);
-  font: 400 clamp(2.6rem, 9vw, 7.5rem) / 0.92 'Bebas Neue', Impact, sans-serif;
+  font: 400 clamp(2.2rem, 6.4vw, 6rem) / 0.92 'Bebas Neue', Impact, sans-serif;
   letter-spacing: 0.01em;
   text-transform: uppercase;
   /* a hard offset shadow, like a second ink pass printed out of register */

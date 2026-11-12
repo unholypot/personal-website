@@ -28,7 +28,8 @@ void main() {
 }
 `
 
-export function createStippleMaterial({ lit, shadow, cell = 3 }) {
+// `light` is the direction the light comes from; it defaults to the scene's own.
+export function createStippleMaterial({ lit, shadow, cell = 3, light = LIGHT }) {
   return new ShaderMaterial({
     vertexShader: VERT,
     fragmentShader: FRAG,
@@ -37,7 +38,7 @@ export function createStippleMaterial({ lit, shadow, cell = 3 }) {
       uDpr: shared.uDpr,
       uLit: { value: new Vector3(...rgb(lit)) },
       uShadow: { value: new Vector3(...rgb(shadow)) },
-      uLight: { value: new Vector3(...LIGHT) },
+      uLight: { value: new Vector3(...light).normalize() },
       uCell: { value: cell },
     },
   })

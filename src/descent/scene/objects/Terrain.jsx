@@ -40,16 +40,15 @@ export default function Terrain() {
     const rand = rng(42)
     b.annulus([0, 0.3, 0], 0, 420, 48, PALETTE.mustard)
     for (const layer of LAYERS) ridgeline(b, layer, rand)
-    // the ridge: a stepped rise with a flat top, and rubble to either side (never toward the viewer)
+    // the ridge: a stepped rise with a flat top, and rubble on its far side from the base, so the domes stay in view
     const [rx, , rz] = RIDGE
-    b.box([rx, RIDGE_TOP * 0.21, rz], [14, RIDGE_TOP * 0.42, 9], TONES.rock, 0.2)
-    b.box([rx, RIDGE_TOP * 0.6, rz], [9, RIDGE_TOP * 0.36, 6], TONES.rock, -0.15)
+    b.box([rx, RIDGE_TOP * 0.21, rz], [11, RIDGE_TOP * 0.42, 7], TONES.rock, 0.2)
+    b.box([rx, RIDGE_TOP * 0.6, rz], [7.5, RIDGE_TOP * 0.36, 5], TONES.rock, -0.15)
     b.box([rx, RIDGE_TOP * 0.89, rz], [4.5, RIDGE_TOP * 0.22, 3.5], TONES.rock, 0.3)
-    for (let i = 0; i < 9; i++) {
-      const side = i % 2 ? 1 : -1
+    for (let i = 0; i < 6; i++) {
       const s = 1.2 + rand() * 3
       const height = 0.8 + rand() * 2.2
-      b.box([rx + side * (8 + rand() * 9), height / 2, rz - 6 + rand() * 9], [s, height, s * 0.8], TONES.rock, rand() * 3)
+      b.box([rx - (8 + rand() * 9), height / 2, rz - 6 + rand() * 9], [s, height, s * 0.8], TONES.rock, rand() * 3)
     }
     return b.toGeometry()
   }, [])

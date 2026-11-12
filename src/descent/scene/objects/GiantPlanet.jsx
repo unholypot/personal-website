@@ -6,12 +6,15 @@ import { motion } from '../sceneMaterial.js'
 import { createStippleMaterial } from '../shaders/stipple.js'
 
 const TURN = (Math.PI * 2) / 180 // one orbit in three minutes
+// Lit from the viewer's side and a little below, so the face the descent looks at is mostly
+// bright and the dots gather along its upper right.
+const GIANT_LIGHT = [-0.5, -0.25, 0.83]
 
 // The ringed giant that hangs in the sky for the whole descent, with two small moons going round it.
 export default function GiantPlanet() {
   const inner = useRef(null)
   const outer = useRef(null)
-  const body = useMemo(() => createStippleMaterial({ lit: PALETTE.orange, shadow: PALETTE.navy, cell: 4 }), [])
+  const body = useMemo(() => createStippleMaterial({ lit: PALETTE.orange, shadow: PALETTE.navy, cell: 4, light: GIANT_LIGHT }), [])
   const moon = useMemo(() => createStippleMaterial({ lit: PALETTE.cream, shadow: PALETTE.navy, cell: 3 }), [])
 
   useFrame((_, delta) => {

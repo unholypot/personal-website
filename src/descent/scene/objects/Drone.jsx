@@ -41,7 +41,7 @@ export default function Drone() {
     const t = shared.uTime.value
     if (group.current) {
       group.current.position.y = DRONE[1] + Math.sin((t * Math.PI * 2) / 3) * 0.6
-      group.current.position.x = DRONE[0] + Math.sin((t * Math.PI * 2) / 9) * 4
+      group.current.position.x = DRONE[0] + Math.sin((t * Math.PI * 2) / 9) * 2
       group.current.rotation.z = Math.cos((t * Math.PI * 2) / 9) * 0.08
     }
     rotors.current.forEach((r, i) => {

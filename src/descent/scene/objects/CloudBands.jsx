@@ -19,7 +19,7 @@ export default function CloudBands() {
       const y = CLOUDS.yMin + (i * (CLOUDS.yMax - CLOUDS.yMin)) / (COUNT - 1)
       const inner = 320 + rand() * 80
       // kept narrow enough that no band shows in the sky from the landing site
-      const outer = y * (1.2 + rand() * 0.35)
+      const outer = y * (1 + rand() * 0.25)
       const color = COLORS[i % COLORS.length]
       const wall = mix(rgb(color), rgb(PALETTE.navy), 0.35)
       b.annulus([0, y, 0], inner, outer, SEGMENTS, color)
