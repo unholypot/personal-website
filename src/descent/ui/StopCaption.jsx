@@ -2,11 +2,13 @@ import { useEffect, useRef } from 'react'
 import { stopVisibility } from '../scroll/progress.js'
 
 // The words for one stop, set like a poster caption. It fades in as the scroll reaches its
-// stop and out as it leaves; while hidden it cannot be focused or clicked.
-export default function StopCaption({ stop, index, progress }) {
+// stop and out as it leaves; while hidden it cannot be focused or clicked. With `fixed` it
+// simply stays put and visible, for the plain page shown when there is no scene.
+export default function StopCaption({ stop, index, progress, fixed = false }) {
   const el = useRef(null)
 
   useEffect(() => {
+    if (fixed) return
     let raf = 0
     let shown = -1
     const tick = () => {
@@ -20,12 +22,12 @@ export default function StopCaption({ stop, index, progress }) {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [index, progress])
+  }, [fixed, index, progress])
 
   const Title = index === 0 ? 'h1' : 'h2'
 
   return (
-    <article className="caption" ref={el} id={stop.id} style={{ opacity: 0, visibility: 'hidden' }}>
+    <article className="caption" ref={el} id={stop.id} style={fixed ? undefined : { opacity: 0, visibility: 'hidden' }}>
       <p className="caption-kicker">{stop.kicker}</p>
       <Title className="caption-title">{stop.title}</Title>
       <p className="caption-body">{stop.body}</p>

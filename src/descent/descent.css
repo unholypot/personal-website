@@ -25,12 +25,66 @@ body {
   height: 100vh;
   height: 100lvh;
   pointer-events: none;
+  /* hidden until it has drawn a few steady frames, so the page never opens on a stutter */
+  opacity: 0;
+  transition: opacity 0.6s ease;
 }
 
-/* The scroll length: five screens of travel between the five stops. */
-.track {
-  height: 600vh;
-  height: 600lvh;
+.stage-ready {
+  opacity: 1;
+}
+
+/* The scroll length: five stretches, one per stop, six screens in all. */
+.track-stop {
+  height: 120vh;
+  height: 120lvh;
+}
+
+/* Reduced motion: one screen per stop, and the page settles on each. */
+html.descent-snap {
+  scroll-snap-type: y mandatory;
+}
+
+html.descent-snap .track-stop {
+  height: 100vh;
+  height: 100lvh;
+  scroll-snap-align: start;
+}
+
+/* ---------- Opening: the name alone while the scene warms up ---------- */
+.opening {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  background: var(--navy);
+  transition: opacity 0.6s ease;
+}
+
+.opening-done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.opening-name {
+  color: var(--cream);
+  font: 400 clamp(3rem, 12vw, 9rem) / 1 'Bebas Neue', Impact, sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---------- No scene: the captions as a plain page ---------- */
+.no-gl .captions {
+  position: static;
+  pointer-events: auto;
+  padding: calc(var(--edge) + var(--gutter));
+  display: grid;
+  gap: clamp(3rem, 10vh, 6rem);
+}
+
+.no-gl .caption {
+  position: static;
 }
 
 /* ---------- Captions: set like the lettering at the foot of a travel poster ---------- */
