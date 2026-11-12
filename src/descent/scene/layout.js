@@ -1,21 +1,24 @@
 // Where everything is. Positions are [x, y, z], y up. The landing site is the origin.
 
-export const GIANT = { center: [-1500, 900, -6000], radius: 1400 }
+export const GIANT = { center: [-1500, 1700, -6000], radius: 1400 }
 // The destination moon. Its top is the landing ground at y = 0.
 export const MOON = { center: [0, -1500, 0], radius: 1500 }
 export const STATION = [140, 1250, -260]
-export const CLOUDS = { yMin: 260, yMax: 520 }
+export const CLOUDS = { yMin: 420, yMax: 760 }
 export const DRONE = [-12, 52, 95]
-export const BASE = [30, 0, -40]
-export const RIDGE = [-14, 0, 10]
+export const BASE = [4, 0, -60]
+// Height of the rise the astronaut stands on.
+export const RIDGE_TOP = 7
+export const RIDGE = [-19, 0, 10]
 
 // The line the craft flies and the ribbon is drawn along.
+// Each point sits ahead of where the camera is at that moment, so the craft leads the eye down.
 export const PATH_POINTS = [
-  [700, 2500, 4400],
-  [260, 1350, 500],
-  [60, 620, 160],
-  [-40, 90, 120],
-  [-10, 6, 34],
+  [700, 2400, 4300],
+  [300, 1200, -150],
+  [40, 330, 60],
+  [10, 44, 40],
+  [16, 1, -48],
 ]
 
 // Cubic Hermite between b and c, with tangents mb and mc already scaled to the segment.

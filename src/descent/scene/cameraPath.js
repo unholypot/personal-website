@@ -4,12 +4,12 @@ import { GIANT, hermite } from './layout.js'
 // The five stops sit at p = 0, 0.25, 0.5, 0.75 and 1. The others shape the travel between them.
 export const KEYFRAMES = [
   { p: 0.0, position: [600, 2600, 5000], target: GIANT.center, fov: 50 },
-  { p: 0.25, position: [320, 1330, 120], target: [0, 1150, -900], fov: 42 },
+  { p: 0.25, position: [320, 1330, 120], target: [81, 1293, -537], fov: 42 },
   { p: 0.4, position: [120, 800, 260], target: [0, 300, 0], fov: 55 },
-  { p: 0.5, position: [70, 400, 200], target: [0, 250, -200], fov: 60 },
+  { p: 0.5, position: [70, 560, 200], target: [0, 380, -200], fov: 60 },
   { p: 0.75, position: [-30, 60, 130], target: [10, 40, -80], fov: 55 },
-  { p: 0.9, position: [-16, 14, 48], target: [-14, 10, 0], fov: 48 },
-  { p: 1.0, position: [-12, 4.2, 30], target: [-300, 150, -1000], fov: 40 },
+  { p: 0.9, position: [-16, 12, 52], target: [-19, 8, 10], fov: 48 },
+  { p: 1.0, position: [-14, 3, 30], target: [-190, 180, -940], fov: 40 },
 ]
 
 const K = (i) => KEYFRAMES[Math.max(0, Math.min(KEYFRAMES.length - 1, i))]
