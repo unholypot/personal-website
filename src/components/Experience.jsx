@@ -27,6 +27,8 @@ const domains = [
       "PV Inverter Modelling",
       "PCB Design & Layout",
       "Embedded Systems",
+      "Raspberry Pi",
+      "MQTT",
       "UART / SPI / I2C",
       "Hardware Debugging",
     ],

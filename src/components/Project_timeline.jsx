@@ -88,6 +88,24 @@ const timelineEntries = [
   },
   {
     year: "2026",
+    title: "UAV Air Quality & Target Detection Payload",
+    description:
+      "A 364 g drone payload that monitors air quality, reads pressure gauges and drills soil samples, built by a five-person team. I was project manager and air quality lead.",
+    tags: ["Raspberry Pi 5", "Python", "MQTT", "I2C / SPI", "Systems Engineering", "Project Management"],
+    overview:
+      "A team project to build a drone payload that monitors air quality, reads pressure gauges and drills soil samples, all in 364 g. The payload is split into four subsystems that had to work together as one unit and meet the customer's requirements.",
+    role:
+      "Project manager and air quality lead in a five-person team. I led the systems engineering across all four subsystems and wrote the air quality sensor software.",
+    highlights: [
+      "Defined the interfaces and communication standards between the four subsystems, and verified the integrated payload against the customer's requirements",
+      "Wrote embedded Python on a Raspberry Pi 5 to sample temperature, humidity, pressure, light and gas over I2C, correcting the temperature reading for heat from the CPU",
+      "Streamed telemetry over MQTT to the ground station dashboard",
+      "Built an SPI LCD controller that shows live sensor data and detection images, switched remotely from the dashboard",
+    ],
+    links: { github: null, liveDemo: null, report: null },
+  },
+  {
+    year: "2026",
     title: "Portfolio Website",
     description:
       "A fully custom portfolio site with a retro-inspired design system and an interactive project timeline that adapts to how you're browsing.",
@@ -97,9 +115,9 @@ const timelineEntries = [
     role:
       "Sole designer and developer. I owned every decision, from the design language and component architecture to the timeline interaction model, theming system, and deployment setup.",
     highlights: [
-      "Built a custom CSS design-token system powering synchronized light and dark themes, with a pre-hydration script that applies the saved theme before React mounts so there's no flash of wrong theme on page load",
-      "Engineered this project timeline component with distinct desktop and mobile interaction models, click-to-expand panels with hover previews on desktop, independent tap-to-toggle cards on mobile — that adapt seamlessly as the viewport changes",
+      "Engineered this project timeline component with distinct desktop and mobile interaction models: click-to-expand panels with hover previews on desktop, and independent tap-to-toggle cards on mobile that adapt seamlessly as the viewport changes",
       "Built a shared animation system on top of Framer Motion for scroll reveals, staggered transitions, and panel animations, with full support for users who prefer reduced motion",
+      "Made the site usable across devices and preferences with responsive layouts, light and dark themes, and full keyboard navigation",
     ],
     outcome:
       "Live at allensaji.com and continuously updated as I develop new projects. It's my primary presence online and the place I point recruiters and collaborators to first.",
@@ -147,46 +165,6 @@ const timelineEntries = [
     outcome:
        "Developed validated simulation models of both the boost converter and full-bridge inverter stages, and identified concrete design improvements — including a snubber circuit and synchronous rectification — to reduce switching losses and improve overall efficiency.",
     links: { github: null, liveDemo: null, report: null },
-  },
-  {
-    year: "2024",
-    title: "Elevator System Simulation",
-    description:
-      "Built a multi-component elevator simulator in C for Linux using POSIX shared memory, multithreading, and TCP/IP sockets.",
-    tags: ["C", "Linux", "POSIX", "TCP/IP"],
-    overview:
-      "A systems programming project simulating a networked multi-floor elevator controller. Multiple processes communicate over TCP/IP and share state via POSIX shared memory — modelling real-time concurrent operation.",
-    role:
-      "Sole developer — designed the system architecture and implemented all components: controller, simulator, display, and network layer.",
-    highlights: [
-      "POSIX shared memory for inter-process state synchronisation",
-      "POSIX threads and mutexes for concurrent floor-request handling",
-      "TCP/IP socket communication between elevator controller and display process",
-      "Graceful shutdown and signal handling across all processes",
-    ],
-    outcome:
-      "Fully functional simulator with deterministic scheduling and clean resource cleanup on exit.",
-    links: { github: null, liveDemo: null, report: null },
-  },
-  {
-    year: "2023",
-    title: "C# Mission Planner",
-    description:
-      "Developed a text-based mission planner in C# (.NET 6.0) with pathfinding to determine the shortest and safest route through a grid-based map.",
-    tags: ["C#", ".NET", "Algorithms"],
-    overview:
-      "A console-based mission planning tool that reads a grid map, identifies threats and safe zones, and uses pathfinding to compute the optimal route for a mission agent.",
-    role:
-      "Sole developer — designed the data model, implemented the pathfinding algorithm, and built the text-based display renderer.",
-    highlights: [
-      "Weighted A* pathfinding accounting for terrain cost and threat proximity",
-      "Custom map parser supporting variable grid sizes and obstacle definitions",
-      "Clear ASCII console rendering of the map, path, and mission summary",
-      "Modular design separating map loading, pathfinding, and display layers",
-    ],
-    outcome:
-      "Successfully found optimal routes across all provided test maps, including edge cases with enclosed zones.",
-    links: { github: "https://github.com/unholypot/CAB201-Project", liveDemo: null, report: null },
   },
 ];
 
