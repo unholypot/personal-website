@@ -468,38 +468,9 @@ summary:hover .project-title {
   overflow-wrap: anywhere;
 }
 
-.rocket {
+.saturn-badge {
   flex: none;
-  width: 2.6rem;
-  height: auto;
-  overflow: visible;
-  transform-origin: 50% 80%;
-  animation: bob 3.2s ease-in-out infinite;
-}
-
-.rocket-flame {
-  transform-origin: 50% 0;
-  animation: flicker 0.4s steps(2) infinite;
-}
-
-/* leans in and lifts when the address beside it is pointed at */
-.contact-email:hover .rocket,
-.contact-email:focus-within .rocket {
-  animation: none;
-  transform: translateY(-6px) rotate(8deg);
-  transition: transform 0.3s ease-out;
-}
-
-@keyframes bob {
-  50% {
-    transform: translateY(-4px) rotate(-2deg);
-  }
-}
-
-@keyframes flicker {
-  50% {
-    transform: scaleY(0.7);
-  }
+  display: block;
 }
 
 .foot {
@@ -522,10 +493,6 @@ summary:hover .project-title {
     scroll-behavior: auto;
   }
 
-  .rocket,
-  .rocket-flame {
-    animation: none;
-  }
 
   .button {
     transition: none;

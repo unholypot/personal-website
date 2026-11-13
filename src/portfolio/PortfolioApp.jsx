@@ -5,7 +5,7 @@ import { PROFILE, ROUTES } from '../content/site.js'
 import { SKILLS } from '../content/skills.js'
 import ConstellationFigure from './ConstellationFigure.jsx'
 import MoonBadge from './MoonBadge.jsx'
-import Rocket from './Rocket.jsx'
+import SaturnBadge from './SaturnBadge.jsx'
 
 const readTheme = () => (document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light')
 
@@ -147,7 +147,7 @@ export default function PortfolioApp() {
           <h2 id="contact-title">Contact</h2>
           <p className="prose">{PROFILE.availability}. The quickest way to reach me is email.</p>
           <p className="contact-email">
-            <Rocket />
+            <SaturnBadge />
             <a href={`mailto:${PROFILE.email}`}>{PROFILE.email}</a>
           </p>
           <p className="intro-links">
