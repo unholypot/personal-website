@@ -105,14 +105,24 @@ html.descent-snap .track-stop {
 }
 
 .caption-kicker {
-  display: inline-block;
-  margin: 0 0 0.7rem;
-  padding: 0.38em 0.8em 0.26em;
-  background: var(--mustard);
-  color: var(--ink);
-  font: 600 0.78rem/1 'Josefin Sans', system-ui, sans-serif;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0 0 0.6rem;
+  color: var(--cream);
+  font: 600 0.95rem/1 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  /* an ink outline, so it reads over cream cloud, mustard ground and navy sky alike */
+  text-shadow: 1px 1px 0 var(--ink), -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink), 0 0 8px var(--ink);
+}
+
+/* a short printed rule leads into the line, instead of a label box */
+.caption-kicker::before {
+  content: '';
+  width: 2.4rem;
+  height: 3px;
+  background: var(--orange);
+  box-shadow: 0 0 0 1px var(--ink);
 }
 
 .caption-title {
@@ -246,14 +256,10 @@ html.descent-snap .track-stop {
 }
 
 .sky-label-kicker {
-  display: inline-block;
-  margin: 0 0 0.45rem;
-  padding: 0.36em 0.75em 0.24em;
-  background: var(--mustard);
-  color: var(--ink);
-  font: 600 0.68rem/1 'Josefin Sans', system-ui, sans-serif;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  margin: 0 0 0.35rem;
+  color: var(--mustard);
+  font: 600 0.82rem/1 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.08em;
 }
 
 .sky-label-title {
@@ -276,26 +282,14 @@ html.descent-snap .track-stop {
 .sky-label-tagline {
   margin: 0 0 0.6rem;
   color: var(--mustard);
-  font: 600 0.68rem/1.2 'Josefin Sans', system-ui, sans-serif;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  font: 400 0.9rem/1.3 'Josefin Sans', system-ui, sans-serif;
+  font-style: italic;
 }
 
-.sky-label-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
+.sky-label-items {
   margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.sky-label-chips li {
-  padding: 0.3em 0.65em 0.22em;
-  border: 1px solid var(--cream);
-  font: 600 0.78rem/1.1 'Josefin Sans', system-ui, sans-serif;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
+  font: 400 0.95rem/1.5 'Josefin Sans', system-ui, sans-serif;
+  text-wrap: pretty;
 }
 
 .sky-hint {
@@ -304,12 +298,10 @@ html.descent-snap .track-stop {
   left: calc(var(--edge) + var(--gutter));
   z-index: 4;
   margin: 0;
-  padding: 0.55em 0.9em 0.45em;
-  background: var(--mustard);
-  color: var(--ink);
-  font: 600 0.7rem/1.2 'Josefin Sans', system-ui, sans-serif;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  color: var(--cream);
+  font: 400 0.95rem/1.2 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 0 var(--ink), 0 0 10px var(--ink);
   pointer-events: none;
   transition: opacity 0.4s ease;
 }

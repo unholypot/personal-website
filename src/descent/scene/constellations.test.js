@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { SKILLS } from '../content/skills.js'
+import { SKILLS } from '../../content/skills.js'
 import { CHARTS } from '../content/starCharts.js'
 import { sampleCamera } from './cameraPath.js'
 import {

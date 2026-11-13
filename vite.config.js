@@ -10,6 +10,7 @@ export default defineConfig({
       input: {
         main: resolve(import.meta.dirname, 'index.html'),
         descent: resolve(import.meta.dirname, 'descent/index.html'),
+        portfolio: resolve(import.meta.dirname, 'portfolio/index.html'),
       },
     },
   },

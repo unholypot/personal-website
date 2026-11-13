@@ -1,4 +1,4 @@
-import { SKILLS } from '../content/skills.js'
+import { SKILLS } from '../../content/skills.js'
 
 // The skills as plain text. In the animated view it is hidden from sight but read out by
 // screen readers (the constellations are for the eye); in the plain page it is shown.

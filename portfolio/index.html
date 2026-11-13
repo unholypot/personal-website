@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Allen Saji, engineering student at QUT: projects, skills and contact details across software, embedded systems and machine learning." />
+    <meta property="og:title" content="Allen Saji, portfolio" />
+    <meta property="og:description" content="Projects, skills and contact details. Open to internships and graduate roles." />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪐</text></svg>" />
+    <title>Allen Saji | Portfolio</title>
+    <!-- Apply the saved (or the system's) theme before first paint, so there is no flash. -->
+    <script>
+      (function () {
+        var t = null
+        try { t = localStorage.getItem('pf-theme') } catch (e) {}
+        if (t !== 'dark' && t !== 'light') t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        document.documentElement.setAttribute('data-theme', t)
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/portfolio/main.jsx"></script>
+  </body>
+</html>

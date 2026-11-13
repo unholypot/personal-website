@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { SKILLS } from '../content/skills.js'
+import { SKILLS } from '../../content/skills.js'
 import { canExplore, nearestFigure } from '../scene/constellations.js'
 import { figures, skyStore } from '../scene/skyStore.js'
 
@@ -114,7 +114,7 @@ export default function SkyLabels({ progress }) {
   return (
     <>
       <p className="sky-hint" ref={hint} aria-hidden="true">
-        Constellations are my skills. Hover or tap one.
+        Each constellation is a set of my skills. Hover or tap one.
       </p>
       <aside className="sky-label" ref={label} aria-hidden="true">
         {skill && (
@@ -123,11 +123,7 @@ export default function SkyLabels({ progress }) {
             <h2 className="sky-label-title">{skill.name}</h2>
             <div className="sky-label-body">
               <p className="sky-label-tagline">{skill.tagline}</p>
-              <ul className="sky-label-chips">
-                {skill.items.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
+              <p className="sky-label-items">{skill.items.join(', ')}</p>
             </div>
           </>
         )}

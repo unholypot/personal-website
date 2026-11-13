@@ -3,7 +3,7 @@
 // of skills. They are set in the sky of the opening view so that all of them sit on screen at
 // once, clear of the planet. This file holds the pure parts: where they are, where they land on
 // the screen, and which one a pointer is on.
-import { SKILLS } from '../content/skills.js'
+import { SKILLS } from '../../content/skills.js'
 import { CHARTS } from '../content/starCharts.js'
 import { cross, frame, offset, unit } from './skyMath.js'
 import { sampleCamera } from './cameraPath.js'

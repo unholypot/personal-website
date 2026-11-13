@@ -1,46 +1,55 @@
-// The words at each of the five stops. Project text is shortened from the main site's timeline.
+// The words at each of the five stops, built from the shared content in src/content.
 // `window` is when the caption shows, in scroll progress: [starts fading in, fully shown,
 // starts fading out, gone]. Each is timed to when its subject is actually on screen.
+import { ABOUT } from '../../content/about.js'
+import { PROFILE, ROUTES, THESIS_REPORT } from '../../content/site.js'
+
 export const STOPS = [
   {
     id: 'deep-space',
     window: [0, 0, 0.05, 0.09],
     kicker: 'Engineering student at QUT',
-    title: 'Allen Saji',
-    body: 'Building across robotics, embedded systems and machine learning. Scroll to begin the descent.',
+    title: PROFILE.name,
+    body: 'Software on one side, electrical on the other. Scroll to begin the descent.',
   },
   {
     id: 'approach',
     window: [0.19, 0.215, 0.265, 0.285],
-    kicker: '2025',
-    title: 'Solar Inverter Analysis',
-    body: 'Reverse-engineered a commercial 5 kW grid-tied solar inverter and modelled its boost converter and full-bridge stage in LTspice and MATLAB to analyse efficiency, ripple and switching.',
+    kicker: 'About me',
+    title: 'Where software meets electrical',
+    body: `I'm in my final year at QUT, graduating early 2027, on the Dean's List. I like the parts of engineering where code and circuits overlap, and most of my best projects live there.`,
   },
   {
     id: 'entry',
     window: [0.43, 0.46, 0.56, 0.59],
-    kicker: '2025',
-    title: 'Cloud Background Removal System',
-    body: 'A background removal platform on AWS, built as two independent microservices joined by an asynchronous queue with retry logic and fault isolation.',
+    kicker: 'Honours thesis, 2026',
+    title: 'Teaching a model to count bubbles',
+    body: 'I trained models to outline bubbles in high-speed electrolyser video, then checked which measurements can be trusted. Gas coverage came out within about 3% of the labels.',
+    links: [{ label: 'Read the report', href: THESIS_REPORT }],
   },
   {
     id: 'low-flight',
     window: [0.69, 0.72, 0.8, 0.83],
-    kicker: '2026',
-    title: 'UAV Air Quality & Target Detection Payload',
-    body: 'A 364 g drone payload that monitors air quality, reads pressure gauges and drills soil samples, built by a team of five. I was project manager and air quality lead.',
+    kicker: 'Things I have built',
+    title: 'A drone payload and a cloud service',
+    body: 'I was project manager and air quality lead on a 364 g drone payload. Before that I built a background removal service on AWS, from the queue to the deployment.',
+    links: [
+      { label: 'The drone payload', href: `${ROUTES.portfolio}#uav-payload` },
+      { label: 'The cloud service', href: `${ROUTES.portfolio}#cloud-background-removal` },
+    ],
   },
   {
     id: 'landing',
     window: [0.94, 0.975, 1, 1],
-    kicker: '2026',
-    title: 'Honours Thesis: Bubble Analysis',
-    body: 'My QUT honours thesis on measuring bubbles in high-speed water electrolyser video, with 37,388 audited labels and a comparison of Mask R-CNN and StarDist models.',
+    kicker: 'Off the clock',
+    title: 'Open to internships and graduate roles',
+    body: `${ABOUT.offTheClock} The rest of my work is in the full portfolio.`,
     links: [
-      { label: 'Full portfolio', href: '/' },
-      { label: 'Email', href: 'mailto:allensaji012@gmail.com' },
-      { label: 'LinkedIn', href: 'https://www.linkedin.com/in/allensaji012/' },
-      { label: 'GitHub', href: 'https://github.com/unholypot' },
+      { label: 'Full portfolio', href: ROUTES.portfolio },
+      { label: 'Download CV', href: PROFILE.cv },
+      { label: 'Email', href: `mailto:${PROFILE.email}` },
+      { label: 'LinkedIn', href: PROFILE.linkedin },
+      { label: 'GitHub', href: PROFILE.github },
     ],
   },
 ]
