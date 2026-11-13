@@ -1,20 +1,20 @@
 // The skills, in five groups, each shown as a real constellation. `constellation` names the star
-// chart it uses (see starCharts.js). The lists are only things already on the main site or
-// plain from the projects on its timeline.
+// chart it uses (see starCharts.js). Everything listed is something already on the main site or
+// plain from the projects.
 export const SKILLS = [
   {
     id: 'languages',
     constellation: 'orion',
     name: 'Languages',
-    tagline: 'What I write code in',
+    tagline: "Languages I've written code in",
     items: ['Python', 'C', 'C++', 'C#', 'JavaScript', 'HTML / CSS'],
   },
   {
-    id: 'tools',
+    id: 'coding-tools',
     constellation: 'scorpius',
-    name: 'Tools',
-    tagline: 'What I build and analyse with',
-    items: ['AWS', 'Docker', 'PyTorch', 'TensorFlow / Keras', 'Detectron2', 'Linux / WSL', 'MATLAB / Simulink', 'LTspice', 'KiCad', 'Eagle', 'AutoCAD'],
+    name: 'Coding tools',
+    tagline: 'What I build software with',
+    items: ['React', 'Vite', 'Node.js', 'Docker', 'AWS', 'PostgreSQL', 'Linux / WSL', 'REST APIs'],
   },
   {
     id: 'engineering',
@@ -27,14 +27,14 @@ export const SKILLS = [
     id: 'ml',
     constellation: 'ursa-major',
     name: 'Machine learning',
-    tagline: 'How I work with data and models',
-    items: ['Computer vision', 'Instance segmentation', 'Mask R-CNN', 'StarDist', 'Dataset building', 'Model evaluation'],
+    tagline: 'What I train and test models with',
+    items: ['PyTorch', 'TensorFlow / Keras', 'Detectron2', 'Mask R-CNN', 'StarDist', 'CVAT'],
   },
   {
-    id: 'ways',
+    id: 'design',
     constellation: 'cassiopeia',
-    name: 'Ways of working',
-    tagline: 'How I get things done',
-    items: ['Project management', 'Systems engineering', 'Planning and scheduling', 'Research and analysis', 'Technical writing', 'Working in a team'],
+    name: 'Design and simulation',
+    tagline: 'What I model and draw with',
+    items: ['MATLAB / Simulink', 'LTspice', 'KiCad', 'Eagle', 'AutoCAD'],
   },
 ]

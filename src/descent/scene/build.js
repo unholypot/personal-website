@@ -3,6 +3,7 @@
 import { BufferGeometry, Float32BufferAttribute, IcosahedronGeometry } from 'three'
 import { SUN } from './layout.js'
 import { rgb } from './palette.js'
+import { rng } from './random.js'
 
 const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
 const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
@@ -18,17 +19,7 @@ export function pickTone(normal, tones) {
   return d > 0.4 ? tones[0] : d > -0.1 ? tones[1] : tones[2]
 }
 
-// Small seeded random source, so generated shapes are the same on every load.
-export function rng(seed) {
-  let s = seed >>> 0
-  return () => {
-    s = (s + 0x6d2b79f5) >>> 0
-    let t = s
-    t = Math.imul(t ^ (t >>> 15), t | 1)
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
+export { rng }
 
 // Normal of a (possibly degenerate) quad, by Newell's method.
 function faceNormal(pts) {

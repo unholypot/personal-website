@@ -1,7 +1,7 @@
 // A small moon with real craters: a faceted sphere whose surface is pushed in to make bowls and
 // out to make raised rims, so its outline is lumpy and every facet catches the light differently.
 // Pure maths; GiantPlanet.jsx turns the result into meshes.
-import { rng } from './build.js'
+import { rng } from './random.js'
 
 const SIZE_MIN = 0.1 // crater radii in radians of arc, as seen from the moon's centre
 const SIZE_MAX = 0.38

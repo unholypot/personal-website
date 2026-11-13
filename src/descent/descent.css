@@ -104,25 +104,12 @@ html.descent-snap .track-stop {
   will-change: opacity, transform;
 }
 
+/* the line that says what a stop is sits inside the ink box, where it always reads */
 .caption-kicker {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  margin: 0 0 0.6rem;
-  color: var(--cream);
-  font: 600 0.95rem/1 'Josefin Sans', system-ui, sans-serif;
-  letter-spacing: 0.08em;
-  /* an ink outline, so it reads over cream cloud, mustard ground and navy sky alike */
-  text-shadow: 1px 1px 0 var(--ink), -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink), 0 0 8px var(--ink);
-}
-
-/* a short printed rule leads into the line, instead of a label box */
-.caption-kicker::before {
-  content: '';
-  width: 2.4rem;
-  height: 3px;
-  background: var(--orange);
-  box-shadow: 0 0 0 1px var(--ink);
+  margin: 0 0 0.4rem;
+  color: var(--mustard);
+  font: 600 0.9rem/1.2 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.06em;
 }
 
 .caption-title {
@@ -138,12 +125,20 @@ html.descent-snap .track-stop {
 
 .caption-body {
   margin: 0.9rem 0 0;
-  max-width: 34ch;
+  max-width: 36ch;
   padding: 0.85em 1em 0.7em;
   background: var(--ink);
   color: var(--cream);
   font: 400 clamp(0.95rem, 1.25vw, 1.1rem) / 1.5 'Josefin Sans', system-ui, sans-serif;
   text-wrap: pretty;
+}
+
+.caption-body p {
+  margin: 0;
+}
+
+.caption-body .caption-kicker {
+  margin-bottom: 0.4rem;
 }
 
 .caption-links {

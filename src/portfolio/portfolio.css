@@ -144,9 +144,17 @@ a:hover {
   margin-left: auto;
 }
 
-.bar-name {
-  font: 400 1.7rem/1 var(--display) !important;
-  letter-spacing: 0.02em;
+.bar {
+  align-items: center;
+}
+
+.bar-moon {
+  display: block;
+  line-height: 0;
+}
+
+.moon-badge {
+  display: block;
 }
 
 .bar button {
@@ -173,13 +181,13 @@ main {
 }
 
 .intro {
-  padding: clamp(2.5rem, 8vw, 6rem) 0 clamp(2rem, 5vw, 4rem);
+  padding: clamp(2rem, 6vw, 4.5rem) 0 clamp(2rem, 5vw, 3.5rem);
   max-width: 52rem;
 }
 
 h1 {
   margin: 0;
-  font: 400 clamp(4rem, 14vw, 10.5rem) / 0.86 var(--display);
+  font: 400 clamp(2.8rem, 7.5vw, 5rem) / 0.9 var(--display);
   letter-spacing: 0.005em;
   text-transform: uppercase;
   /* the second ink pass, slightly out of register, as on the descent */
@@ -187,8 +195,8 @@ h1 {
 }
 
 .intro-role {
-  margin: 1.4rem 0 0.2rem;
-  font-size: 1.3rem;
+  margin: 1rem 0 0.2rem;
+  font-size: 1.25rem;
   line-height: 1.4;
   text-wrap: balance;
 }
@@ -452,14 +460,46 @@ summary:hover .project-title {
 
 /* ---------- contact and footer ---------- */
 .contact-email {
-  margin: 0.4rem 0 0;
-  font: 400 clamp(1.8rem, 5vw, 3rem) / 1.1 var(--display);
-  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 0.6rem 0 0;
+  font-size: 1.35rem;
   overflow-wrap: anywhere;
 }
 
-.contact-email a {
-  text-decoration-thickness: 3px;
+.rocket {
+  flex: none;
+  width: 2.6rem;
+  height: auto;
+  overflow: visible;
+  transform-origin: 50% 80%;
+  animation: bob 3.2s ease-in-out infinite;
+}
+
+.rocket-flame {
+  transform-origin: 50% 0;
+  animation: flicker 0.4s steps(2) infinite;
+}
+
+/* leans in and lifts when the address beside it is pointed at */
+.contact-email:hover .rocket,
+.contact-email:focus-within .rocket {
+  animation: none;
+  transform: translateY(-6px) rotate(8deg);
+  transition: transform 0.3s ease-out;
+}
+
+@keyframes bob {
+  50% {
+    transform: translateY(-4px) rotate(-2deg);
+  }
+}
+
+@keyframes flicker {
+  50% {
+    transform: scaleY(0.7);
+  }
 }
 
 .foot {
@@ -480,6 +520,11 @@ summary:hover .project-title {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .rocket,
+  .rocket-flame {
+    animation: none;
   }
 
   .button {

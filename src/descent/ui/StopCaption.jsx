@@ -28,9 +28,11 @@ export default function StopCaption({ stop, index, progress, fixed = false }) {
 
   return (
     <article className="caption" ref={el} id={stop.id} style={fixed ? undefined : { opacity: 0, visibility: 'hidden' }}>
-      <p className="caption-kicker">{stop.kicker}</p>
       <Title className="caption-title">{stop.title}</Title>
-      <p className="caption-body">{stop.body}</p>
+      <div className="caption-body">
+        <p className="caption-kicker">{stop.kicker}</p>
+        <p>{stop.body}</p>
+      </div>
       {stop.links && (
         <ul className="caption-links">
           {stop.links.map((link) => (

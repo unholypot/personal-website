@@ -30,9 +30,9 @@ export const STOPS = [
   {
     id: 'low-flight',
     window: [0.69, 0.72, 0.8, 0.83],
-    kicker: 'Things I have built',
-    title: 'A drone payload and a cloud service',
-    body: 'I was project manager and air quality lead on a 364 g drone payload. Before that I built a background removal service on AWS, from the queue to the deployment.',
+    kicker: 'Two projects from my degree',
+    title: 'Built with a team, and built alone',
+    body: 'A 364 g drone payload that I managed with a team of five, and a background removal service on AWS that I built on my own, from the queue to the deployment.',
     links: [
       { label: 'The drone payload', href: `${ROUTES.portfolio}#uav-payload` },
       { label: 'The cloud service', href: `${ROUTES.portfolio}#cloud-background-removal` },
@@ -41,9 +41,9 @@ export const STOPS = [
   {
     id: 'landing',
     window: [0.94, 0.975, 1, 1],
-    kicker: 'Off the clock',
-    title: 'Open to internships and graduate roles',
-    body: `${ABOUT.offTheClock} The rest of my work is in the full portfolio.`,
+    kicker: 'Away from the desk',
+    title: "When I'm not building",
+    body: `${ABOUT.offTheClock} I'm looking for internships and graduate roles, and the rest of my work is in the portfolio.`,
     links: [
       { label: 'Full portfolio', href: ROUTES.portfolio },
       { label: 'Download CV', href: PROFILE.cv },

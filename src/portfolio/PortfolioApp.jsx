@@ -4,6 +4,8 @@ import { PROJECTS } from '../content/projects.js'
 import { PROFILE, ROUTES } from '../content/site.js'
 import { SKILLS } from '../content/skills.js'
 import ConstellationFigure from './ConstellationFigure.jsx'
+import MoonBadge from './MoonBadge.jsx'
+import Rocket from './Rocket.jsx'
 
 const readTheme = () => (document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light')
 
@@ -41,7 +43,9 @@ export default function PortfolioApp() {
     <>
       <a className="skip-link" href="#work">Skip to the projects</a>
       <header className="bar">
-        <a className="bar-name" href="#top">{PROFILE.name}</a>
+        <a className="bar-moon" href="#top" aria-label="Back to the top">
+          <MoonBadge />
+        </a>
         <nav aria-label="Sections">
           <a href="#work">Work</a>
           <a href="#skills">Skills</a>
@@ -114,7 +118,7 @@ export default function PortfolioApp() {
         <section id="skills" className="block" aria-labelledby="skills-title">
           <h2 id="skills-title">Skills</h2>
           <p className="block-note">
-            The same five constellations as in the descent, drawn from the real positions of their stars.
+            The same five constellations as in the descent, drawn from where their stars really are.
           </p>
           <ul className="skills">
             {SKILLS.map((group) => (
@@ -143,6 +147,7 @@ export default function PortfolioApp() {
           <h2 id="contact-title">Contact</h2>
           <p className="prose">{PROFILE.availability}. The quickest way to reach me is email.</p>
           <p className="contact-email">
+            <Rocket />
             <a href={`mailto:${PROFILE.email}`}>{PROFILE.email}</a>
           </p>
           <p className="intro-links">

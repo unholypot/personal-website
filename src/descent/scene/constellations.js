@@ -17,7 +17,7 @@ export const ANCHORS = [
   [0.74, -0.08, 0.13], // Scorpius: tools
   [-0.3, 0.74, 0.06], // the Southern Cross: engineering
   [0.12, 0.7, 0.125], // the Big Dipper: machine learning
-  [0.64, 0.66, 0.085], // Cassiopeia: ways of working
+  [0.64, 0.66, 0.085], // Cassiopeia: design and simulation
 ]
 
 // The same five for a tall, phone-shaped screen (aspect about 0.46), where the rings run the full
@@ -27,7 +27,7 @@ export const TALL_ANCHORS = [
   [0.45, 0.42, 0.075], // Scorpius: tools
   [-0.08, 0.44, 0.042], // the Southern Cross: engineering
   [-0.42, 0.7, 0.085], // the Big Dipper: machine learning
-  [0.45, 0.72, 0.065], // Cassiopeia: ways of working
+  [0.45, 0.72, 0.065], // Cassiopeia: design and simulation
 ]
 
 const OPENING_ASPECT = 1.6

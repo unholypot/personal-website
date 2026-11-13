@@ -42,7 +42,9 @@ describe('the skills', () => {
   it('name the languages and the tools that were asked for', () => {
     const items = (id) => SKILLS.find((s) => s.id === id).items.join(' | ')
     for (const word of ['Python', 'C#', 'JavaScript']) expect(items('languages')).toContain(word)
-    for (const word of ['AWS', 'PyTorch', 'TensorFlow', 'AutoCAD', 'LTspice', 'MATLAB', 'Simulink']) expect(items('tools')).toContain(word)
+    for (const word of ['AWS', 'Docker']) expect(items('coding-tools')).toContain(word)
+    for (const word of ['PyTorch', 'TensorFlow']) expect(items('ml')).toContain(word)
+    for (const word of ['AutoCAD', 'LTspice', 'MATLAB', 'Simulink']) expect(items('design')).toContain(word)
   })
 })
 
