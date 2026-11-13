@@ -5,8 +5,8 @@ import { useSpin } from './useSpin.js'
 // The descent's ringed giant, small: a faceted ball in flat orange and mustard stripes, shaded in
 // three tones from the same side as everything else, with its rings seen nearly edge-on. It turns
 // slowly (the stripes drift past), and the rings stay put, as they do in the descent.
-const W = 96
-const H = 64
+const W = 80
+const H = 48
 const LIGHT = (() => {
   const v = [-0.45, 0.75, 0.5]
   const l = Math.hypot(...v)
@@ -32,7 +32,8 @@ function makeDraw(w, h) {
   }
   const tris = verts.length / 9
   const out = new Float32Array(verts.length)
-  const R = h * 0.4
+  // sized so the widest ring (2.15 radii out, plus its stroke) stays inside the canvas
+  const R = Math.min(h * 0.4, (w / 2) / 2.45)
   const cx = w / 2
   const cy = h / 2
   // wavy bands: the edges wander with longitude, which is what shows the planet turning
