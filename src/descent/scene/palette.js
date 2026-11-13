@@ -31,6 +31,11 @@ export function rgb(hex) {
 
 export const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t)
 
+// Flat colours for things lying on the mustard ground.
+export const SHADE = mix(rgb(mustard), rgb(navy), 0.4) // a cast shadow
+export const WORN = mix(rgb(mustard), rgb(navy), 0.3) // tracks and pads
+export const PALE = mix(rgb(mustard), rgb(cream), 0.6) // painted lines and crater rims
+
 const SPACE = rgb(navy)
 const GROUND_SKY = mix(rgb(navy), rgb(teal), 0.6)
 

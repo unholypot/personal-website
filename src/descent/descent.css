@@ -99,7 +99,7 @@ html.descent-snap .track-stop {
   position: absolute;
   left: calc(var(--edge) + var(--gutter));
   right: calc(var(--edge) + var(--gutter));
-  bottom: calc(var(--edge) + clamp(20px, 6vh, 64px));
+  bottom: calc(var(--edge) + clamp(20px, 6vh, 64px) + env(safe-area-inset-bottom, 0px));
   max-width: 40rem;
   will-change: opacity, transform;
 }
@@ -133,6 +133,7 @@ html.descent-snap .track-stop {
   background: var(--ink);
   color: var(--cream);
   font: 400 clamp(0.95rem, 1.25vw, 1.1rem) / 1.5 'Josefin Sans', system-ui, sans-serif;
+  text-wrap: pretty;
 }
 
 .caption-links {
@@ -145,8 +146,11 @@ html.descent-snap .track-stop {
 }
 
 .caption-links a {
-  display: inline-block;
-  padding: 0.62em 1em 0.48em;
+  display: inline-flex;
+  align-items: center;
+  /* a comfortable target for a thumb: 44px tall on touch screens, 40px otherwise */
+  min-height: 40px;
+  padding: 0 1.05em;
   border: 2px solid var(--ink);
   background: var(--cream);
   color: var(--ink);
@@ -161,9 +165,16 @@ html.descent-snap .track-stop {
     box-shadow 0.12s ease;
 }
 
+@media (pointer: coarse) {
+  .caption-links a {
+    min-height: 44px;
+  }
+}
+
+/* ink on orange is 4.7:1; cream on it was 3.2:1 */
 .caption-links li:first-child a {
   background: var(--orange);
-  color: var(--cream);
+  color: var(--ink);
 }
 
 .caption-links a:hover {
@@ -171,9 +182,238 @@ html.descent-snap .track-stop {
   box-shadow: 2px 2px 0 var(--ink);
 }
 
-.caption-links a:focus-visible {
-  outline: 3px solid var(--mustard);
-  outline-offset: 3px;
+.caption-links a:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 var(--ink);
+}
+
+/* Cream ring inside an ink ring, so it shows on mustard, teal, navy and cream alike. */
+.caption-links a:focus-visible,
+.mode-switch:focus-visible {
+  outline: 3px solid var(--cream);
+  outline-offset: 0;
+  box-shadow:
+    0 0 0 6px var(--ink),
+    4px 4px 0 6px var(--ink);
+}
+
+/* ---------- Switching between the animation and a plain page ---------- */
+.mode-switch {
+  position: fixed;
+  top: calc(var(--edge) + 12px);
+  left: calc(var(--edge) + 12px);
+  z-index: 6;
+  padding: 0.7em 1.1em 0.6em;
+  border: 2px solid var(--ink);
+  background: var(--cream);
+  color: var(--ink);
+  font: 600 0.82rem/1 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+/* The skip control stays out of sight until the keyboard reaches it. */
+.mode-switch.skip:not(:focus) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+  box-shadow: none;
+}
+
+/* ---------- The constellations: a label for the skill in focus, and a hint to look ---------- */
+.sky-label {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  width: min(21rem, calc(100vw - 2 * (var(--edge) + var(--gutter))));
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  will-change: transform, opacity;
+}
+
+.sky-label-on {
+  opacity: 1;
+}
+
+.sky-label-kicker {
+  display: inline-block;
+  margin: 0 0 0.45rem;
+  padding: 0.36em 0.75em 0.24em;
+  background: var(--mustard);
+  color: var(--ink);
+  font: 600 0.68rem/1 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.sky-label-title {
+  margin: 0;
+  color: var(--cream);
+  font: 400 clamp(1.8rem, 3.4vw, 2.5rem) / 0.95 'Bebas Neue', Impact, sans-serif;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  text-shadow: 0.05em 0.05em 0 var(--ink);
+}
+
+.sky-label-body {
+  margin: 0.5rem 0 0;
+  padding: 0.75em 0.9em 0.8em;
+  background: var(--ink);
+  color: var(--cream);
+  font: 400 0.9rem/1.5 'Josefin Sans', system-ui, sans-serif;
+}
+
+.sky-label-tagline {
+  margin: 0 0 0.6rem;
+  color: var(--mustard);
+  font: 600 0.68rem/1.2 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.sky-label-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sky-label-chips li {
+  padding: 0.3em 0.65em 0.22em;
+  border: 1px solid var(--cream);
+  font: 600 0.78rem/1.1 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.sky-hint {
+  position: fixed;
+  top: calc(var(--edge) + 14px);
+  left: calc(var(--edge) + var(--gutter));
+  z-index: 4;
+  margin: 0;
+  padding: 0.55em 0.9em 0.45em;
+  background: var(--mustard);
+  color: var(--ink);
+  font: 600 0.7rem/1.2 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.sky-hint-gone {
+  opacity: 0;
+}
+
+/* ---------- Skills as plain text: read aloud in the animated view, shown in the plain page ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skill-list {
+  max-width: 40rem;
+}
+
+.skill-list h2 {
+  margin: 0 0 0.8rem;
+  color: var(--cream);
+  font: 400 clamp(2.2rem, 6.4vw, 4rem) / 0.92 'Bebas Neue', Impact, sans-serif;
+  text-transform: uppercase;
+  text-shadow: 0.045em 0.045em 0 var(--ink);
+}
+
+.skill-list ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skill-list li {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.75em 1em 0.65em;
+  background: var(--ink);
+  color: var(--cream);
+  font: 400 0.95rem/1.5 'Josefin Sans', system-ui, sans-serif;
+}
+
+.skill-list strong {
+  color: var(--mustard);
+  font: 600 0.78rem/1.2 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ---------- Scroll cue: a chevron at the foot of the first screen, wide screens only ---------- */
+.scroll-cue {
+  display: none;
+}
+
+@media (min-width: 700px) {
+  .scroll-cue {
+    position: fixed;
+    right: calc(var(--edge) + var(--gutter));
+    bottom: calc(var(--edge) + clamp(20px, 6vh, 64px));
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--cream);
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    /* the lettering's own offset shadow, in a drop filter-free form */
+    text-shadow: 0.08em 0.08em 0 var(--ink);
+  }
+
+  .scroll-cue-gone {
+    opacity: 0;
+  }
+
+  .scroll-cue-label {
+    font: 600 0.78rem/1 'Josefin Sans', system-ui, sans-serif;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    padding-left: 0.3em;
+  }
+
+  .scroll-cue-arrow {
+    display: block;
+    animation: cue-nod 1.6s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  }
+}
+
+@keyframes cue-nod {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
 }
 
 /* ---------- The paper: border, darkened corners, grain ---------- */
@@ -183,6 +423,16 @@ html.descent-snap .track-stop {
   z-index: 3;
   pointer-events: none;
   overflow: hidden;
+}
+
+/* A soft darkening under the lettering (above the scene, below the captions), so cream titles
+   hold against mustard ground and orange planet. */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(11, 18, 32, 0.6) 0%, rgba(11, 18, 32, 0.28) 24%, transparent 46%);
 }
 
 .vignette {
@@ -251,7 +501,8 @@ html.descent-snap .track-stop {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .grain {
+  .grain,
+  .scroll-cue-arrow {
     animation: none;
   }
 

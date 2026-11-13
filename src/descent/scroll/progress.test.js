@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { scrollToProgress, damp, nearestStop, stopVisibility } from './progress.js'
+import { scrollToProgress, damp, nearestStop, captionVisibility } from './progress.js'
 
 describe('scrollToProgress', () => {
   it('maps top, middle and bottom', () => {
@@ -43,16 +43,26 @@ describe('nearestStop', () => {
   })
 })
 
-describe('stopVisibility', () => {
-  it('is 1 at and near the stop, 0 far away', () => {
-    expect(stopVisibility(0.25, 1)).toBe(1)
-    expect(stopVisibility(0.3, 1)).toBe(1)
-    expect(stopVisibility(0.37, 1)).toBe(0)
-    expect(stopVisibility(0.25, 2)).toBe(0)
+describe('captionVisibility', () => {
+  const window = [0.2, 0.23, 0.27, 0.3]
+  it('is hidden before and after its window', () => {
+    expect(captionVisibility(0.1, window)).toBe(0)
+    expect(captionVisibility(0.2, window)).toBe(0)
+    expect(captionVisibility(0.3, window)).toBe(0)
+    expect(captionVisibility(0.9, window)).toBe(0)
   })
-  it('fades between', () => {
-    const v = stopVisibility(0.335, 1)
-    expect(v).toBeGreaterThan(0)
-    expect(v).toBeLessThan(1)
+  it('is fully shown through the middle of its window', () => {
+    expect(captionVisibility(0.23, window)).toBe(1)
+    expect(captionVisibility(0.25, window)).toBe(1)
+    expect(captionVisibility(0.27, window)).toBe(1)
+  })
+  it('fades in and out at the ends', () => {
+    expect(captionVisibility(0.215, window)).toBeCloseTo(0.5, 6)
+    expect(captionVisibility(0.285, window)).toBeCloseTo(0.5, 6)
+  })
+  it('can start shown at the top and stay shown at the bottom', () => {
+    expect(captionVisibility(0, [0, 0, 0.05, 0.09])).toBe(1)
+    expect(captionVisibility(1, [0.93, 0.97, 1, 1])).toBe(1)
+    expect(captionVisibility(NaN, window)).toBe(0)
   })
 })

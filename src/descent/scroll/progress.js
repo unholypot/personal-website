@@ -22,10 +22,11 @@ export function nearestStop(p, count = STOP_COUNT) {
   return Math.min(count - 1, Math.round(p * (count - 1)))
 }
 
-// 1 while p is within 0.06 of the stop, falling to 0 at 0.11.
-export function stopVisibility(p, index, count = STOP_COUNT) {
-  const d = Math.abs(p - index / (count - 1))
-  if (d <= 0.06) return 1
-  if (d >= 0.11) return 0
-  return (0.11 - d) / 0.05
+// How visible a caption is at p, given its window [fadeInStart, shown, fadeOutStart, gone].
+export function captionVisibility(p, [fadeIn, shown, fadeOut, gone]) {
+  if (!(p >= 0)) return 0
+  if (p >= shown && p <= fadeOut) return 1
+  if (p > fadeIn && p < shown) return (p - fadeIn) / (shown - fadeIn)
+  if (p > fadeOut && p < gone) return (gone - p) / (gone - fadeOut)
+  return 0
 }

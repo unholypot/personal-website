@@ -1,6 +1,7 @@
 // Three-tone geometry builder. Every flat face gets one of its material's three tones,
 // chosen by which way it faces a single fixed light, and stored as a vertex colour.
-import { BufferGeometry, Float32BufferAttribute } from 'three'
+import { BufferGeometry, Float32BufferAttribute, IcosahedronGeometry } from 'three'
+import { SUN } from './layout.js'
 import { rgb } from './palette.js'
 
 const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
@@ -10,7 +11,7 @@ const unit = (a) => {
   return [a[0] / l, a[1] / l, a[2] / l]
 }
 
-export const LIGHT = unit([-0.45, 0.75, 0.5])
+export const LIGHT = unit(SUN)
 
 export function pickTone(normal, tones) {
   const d = dot(normal, LIGHT)
@@ -130,6 +131,124 @@ export function createBuilder() {
     }
   }
 
+  // One triangle, one tone. With awayFrom, it is turned to look away from that point.
+  // `blend` (0..1) slides its tone part of the way toward the next darker one.
+  function tri(a, b, c, tones, awayFrom, blend = 0) {
+    if (place) {
+      a = place(a)
+      b = place(b)
+      c = place(c)
+      if (awayFrom) awayFrom = place(awayFrom)
+    }
+    let n = faceNormal([a, b, c])
+    let order = [a, b, c]
+    if (awayFrom) {
+      const centre = [(a[0] + b[0] + c[0]) / 3, (a[1] + b[1] + c[1]) / 3, (a[2] + b[2] + c[2]) / 3]
+      if (dot(n, sub(centre, awayFrom)) < 0) {
+        n = [-n[0], -n[1], -n[2]]
+        order = [a, c, b]
+      }
+    }
+    const tone = pickTone(n, tones)
+    let col = rgb(tone)
+    if (blend > 0) {
+      const darker = rgb(tones[Math.min(2, tones.indexOf(tone) + 1)])
+      col = col.map((v, i) => v + (darker[i] - v) * blend)
+    }
+    order.forEach((p) => push(p, col))
+  }
+
+  // A lumpy faceted rock: a twenty-sided ball cut finer, each corner pushed in or out by a hash of
+  // where it is (so corners that meet move together and no cracks open), then squashed and turned.
+  function rock(center, radius, tones, { seed = 1, squash = 1, turn = [0, 0, 0] } = {}) {
+    const base = new IcosahedronGeometry(1, 1).getAttribute('position')
+    const salt = seed * 17.3
+    const lump = (x, y, z) => {
+      const v = Math.sin(Math.round(x * 100) * 12.9898 + Math.round(y * 100) * 78.233 + Math.round(z * 100) * 37.719 + salt) * 43758.5453
+      return v - Math.floor(v)
+    }
+    const [cx, cy, cz] = turn.map(Math.cos)
+    const [sx, sy, sz] = turn.map(Math.sin)
+    const point = (i) => {
+      const k = 1 + (lump(base.getX(i), base.getY(i), base.getZ(i)) - 0.5) * 0.7
+      let x = base.getX(i) * k * radius
+      let y = base.getY(i) * k * radius * squash
+      let z = base.getZ(i) * k * radius
+      // turn about x, then y, then z
+      let t = y * cx - z * sx
+      z = y * sx + z * cx
+      y = t
+      t = x * cy + z * sy
+      z = -x * sy + z * cy
+      x = t
+      t = x * cz - y * sz
+      y = x * sz + y * cz
+      x = t
+      return [center[0] + x, center[1] + y, center[2] + z]
+    }
+    for (let i = 0; i < base.count; i += 3) tri(point(i), point(i + 1), point(i + 2), tones, center)
+  }
+
+  // Runs `draw` (which builds about the origin, y up) and stands the result at `center` with its
+  // up along `up`. Tones are chosen after it is placed, so the light still falls from one side.
+  let place = null
+  function tilted(center, up, draw) {
+    const u = unit(up)
+    const side = unit(Math.abs(u[1]) > 0.99 ? [1, 0, 0] : [u[2], 0, -u[0]])
+    const fore = [side[1] * u[2] - side[2] * u[1], side[2] * u[0] - side[0] * u[2], side[0] * u[1] - side[1] * u[0]]
+    place = (p) => [
+      center[0] + side[0] * p[0] + u[0] * p[1] + fore[0] * p[2],
+      center[1] + side[1] * p[0] + u[1] * p[1] + fore[1] * p[2],
+      center[2] + side[2] * p[0] + u[2] * p[1] + fore[2] * p[2],
+    ]
+    draw()
+    place = null
+  }
+
+  // A faceted peak: uneven rings narrowing to a point (or to a small level top, with `plateau`).
+  // Every triangle takes its own tone, so it reads as a solid mountain from any side or from above.
+  // center is the middle of its foot; the summit is `height` above that. `texture` (0..1) is how
+  // much the shade wanders from face to face, which gives the rock its grain.
+  function mountain(center, radius, height, tones, { seed = 1, segments = 7, tiers = 3, plateau = 0, texture = 0, up = null, ridged = false } = {}) {
+    if (up) return tilted(center, up, () => mountain([0, 0, 0], radius, height, tones, { seed, segments, tiers, plateau, texture, ridged }))
+    const rand = rng(seed)
+    const [cx, cy, cz] = center
+    const turn = rand() * Math.PI * 2
+    // Persistent radial ribs run from foot to summit. Alternating buttresses
+    // and gullies produce real changes in face orientation, not painted noise.
+    const ribs = ridged ? Array.from({ length: segments }, (_, i) => (i % 2 ? 0.58 : 1.08) + rand() * 0.1) : null
+    const rings = []
+    const last = plateau > 0 ? tiers : tiers - 1
+    for (let k = 0; k <= last; k++) {
+      const f = k / tiers
+      const r = plateau + (radius - plateau) * Math.pow(1 - f, 1.15)
+      const y = cy + height * Math.pow(f, 0.85)
+      const top = plateau > 0 && k === tiers
+      rings.push(
+        Array.from({ length: segments }, (_, i) => {
+          const a = turn + ((i + (top ? 0 : (rand() - 0.5) * (ridged ? 0.12 : 0.5))) / segments) * Math.PI * 2
+          const jitter = top ? 0.9 + rand() * 0.2 : ridged ? ribs[i] : 0.8 + rand() * 0.35
+          const lift = ridged && k > 0 && !top ? Math.sin(i * 2.1 + seed) * height * 0.065 * Math.sin(f * Math.PI) : 0
+          const lean = ridged ? radius * f * 0.18 : 0
+          return [cx + Math.cos(a) * r * jitter + lean, y + lift, cz + Math.sin(a) * r * jitter]
+        }),
+      )
+    }
+    for (let k = 0; k < rings.length - 1; k++) {
+      const axis = [cx, (rings[k][0][1] + rings[k + 1][0][1]) / 2, cz]
+      for (let i = 0; i < segments; i++) {
+        const j = (i + 1) % segments
+        tri(rings[k][i], rings[k][j], rings[k + 1][j], tones, axis, rand() * texture)
+        tri(rings[k][i], rings[k + 1][j], rings[k + 1][i], tones, axis, rand() * texture)
+      }
+    }
+    const crown = rings[rings.length - 1]
+    const lean = plateau > 0 ? 0 : radius * 0.12
+    const summit = [cx + (ridged ? radius * 0.18 : (rand() - 0.5) * lean), cy + height, cz + (rand() - 0.5) * lean]
+    const inside = [cx, cy, cz]
+    for (let i = 0; i < segments; i++) tri(crown[i], crown[(i + 1) % segments], summit, tones, inside, rand() * texture)
+  }
+
   function toGeometry() {
     const g = new BufferGeometry()
     g.setAttribute('position', new Float32BufferAttribute(positions, 3))
@@ -138,5 +257,5 @@ export function createBuilder() {
     return g
   }
 
-  return { positions, colors, quad, box, lathe, flat, annulus, toGeometry }
+  return { positions, colors, quad, tri, box, lathe, flat, annulus, mountain, rock, toGeometry }
 }

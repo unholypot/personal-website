@@ -2,29 +2,35 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Color, SRGBColorSpace } from 'three'
 import { sampleCamera } from './cameraPath.js'
+import { arrivalLift } from './arrival.js'
 import { skyColor } from './palette.js'
 import { motion, shared } from './sceneMaterial.js'
 import { createQuality } from '../quality.js'
+import { parallaxAngles, pointer, step as stepPointer } from '../scroll/parallax.js'
+import { skyStore, updateScreens } from './skyStore.js'
 import Starfield from './objects/Starfield.jsx'
+import ProbeOrbit from './objects/ProbeOrbit.jsx'
+import AsteroidBelt from './objects/AsteroidBelt.jsx'
+import SkyDetails from './objects/SkyDetails.jsx'
+import DeepSky from './objects/DeepSky.jsx'
+import Constellations from './objects/Constellations.jsx'
 import GiantPlanet from './objects/GiantPlanet.jsx'
 import Rings from './objects/Rings.jsx'
 import Moon from './objects/Moon.jsx'
+import Atmosphere from './objects/Atmosphere.jsx'
+import OrbitalRocks from './objects/OrbitalRocks.jsx'
 import Station from './objects/Station.jsx'
 import Craft from './objects/Craft.jsx'
 import TrailRibbon from './objects/TrailRibbon.jsx'
 import CloudBands from './objects/CloudBands.jsx'
 import Terrain from './objects/Terrain.jsx'
+import Surface from './objects/Surface.jsx'
 import Drone from './objects/Drone.jsx'
 import DomeBase from './objects/DomeBase.jsx'
+import RadioArray from './objects/RadioArray.jsx'
 import Astronaut from './objects/Astronaut.jsx'
 
 const clear = new Color()
-
-// Arrival: the first view starts raised this far above its place and is let down onto it.
-const ARRIVAL_HEIGHT = 300
-const ARRIVAL_SECONDS = 1.6
-// eases from 0 to 1, starting and landing at rest
-const settle = (t) => t * t * t * (t * (t * 6 - 15) + 10)
 
 export default function Scene({ progress, ready, onWarm }) {
   const quality = useMemo(() => createQuality({ maxDpr: window.devicePixelRatio || 1 }), [])
@@ -44,29 +50,25 @@ export default function Scene({ progress, ready, onWarm }) {
       }
     }
 
-    // Arrival, only for a visit that starts at the top and allows motion.
-    let lift = 0
-    if (r.arriving === null) {
-      const wanted = motion.on && progress.target < 0.02
-      if (!ready) lift = wanted ? ARRIVAL_HEIGHT : 0
-      else {
-        r.arriving = wanted
-        r.arrivalStart = shared.uTime.value
-        lift = wanted ? ARRIVAL_HEIGHT : 0
-      }
-    } else if (r.arriving) {
-      const t = (shared.uTime.value - r.arrivalStart) / ARRIVAL_SECONDS
-      if (t >= 1) r.arriving = false
-      else lift = ARRIVAL_HEIGHT * (1 - settle(t))
-    }
+    const lift = arrivalLift(r, { enabled: motion.on, ready, atTop: progress.target < 0.02, time: shared.uTime.value })
 
-    const view = sampleCamera(p, size.width / size.height)
+    // Development aid: window.__cam = { position, target, fov } takes the camera off the scroll path.
+    const view = (import.meta.env.DEV && window.__cam) || sampleCamera(p, size.width / size.height)
     camera.position.set(view.position[0], view.position[1] + lift, view.position[2])
     camera.lookAt(view.target[0], view.target[1] + lift, view.target[2])
+    // a slight sway with the pointer, where there is one
+    if (pointer.on) {
+      stepPointer(pointer, delta)
+      const [yaw, pitch] = parallaxAngles(pointer)
+      camera.rotateY(yaw)
+      camera.rotateX(pitch)
+    }
     if (camera.fov !== view.fov) {
       camera.fov = view.fov
       camera.updateProjectionMatrix()
     }
+    // where each constellation is on the screen now, for the page's hover and tap
+    updateScreens(camera, size.width, size.height)
 
     const sky = skyColor(p)
     shared.uSky.value.set(sky[0], sky[1], sky[2])
@@ -78,26 +80,36 @@ export default function Scene({ progress, ready, onWarm }) {
     if (level < gl.getPixelRatio()) state.setDpr(level)
 
     // Development aid: lets the browser console inspect and place things.
-    if (import.meta.env.DEV) window.__descent = { camera, progress, scene: state.scene }
+    if (import.meta.env.DEV) window.__descent = { camera, progress, scene: state.scene, skyStore }
 
     const dpr = gl.getPixelRatio()
     // The scene's clock stops for reduced motion, which stills the dust, the drift and the grain band.
     if (motion.on) shared.uTime.value += delta
     shared.uDpr.value = dpr
+    shared.uAspect.value = size.width / size.height
     shared.uPx.value = (size.height * dpr) / (2 * Math.tan((view.fov * Math.PI) / 360))
   })
 
   return (
     <>
       <Starfield progress={progress} />
+      <DeepSky progress={progress} />
+      <Constellations progress={progress} />
+      <SkyDetails progress={progress} />
       <GiantPlanet />
+      <ProbeOrbit />
+      <AsteroidBelt progress={progress} />
       <Rings />
       <Moon />
+      <Atmosphere />
       <Station />
+      <OrbitalRocks />
       <CloudBands />
+      <Surface />
       <Terrain />
       <Drone />
       <DomeBase />
+      <RadioArray />
       <Astronaut />
       <TrailRibbon progress={progress} />
       <Craft progress={progress} />

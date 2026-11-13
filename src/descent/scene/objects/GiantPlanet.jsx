@@ -1,26 +1,49 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
+import { BufferGeometry, Euler, Float32BufferAttribute, Vector3 } from 'three'
+import { moonPositions } from '../moonBody.js'
 import { GIANT } from '../layout.js'
-import { PALETTE } from '../palette.js'
+import { SATELLITES } from '../satelliteLayout.js'
+import { PALETTE, mix, rgb } from '../palette.js'
 import { motion } from '../sceneMaterial.js'
 import { createStippleMaterial } from '../shaders/stipple.js'
 
 const TURN = (Math.PI * 2) / 180 // one orbit in three minutes
-// Lit from the viewer's side and a little below, so the face the descent looks at is mostly
-// bright and the dots gather along its upper right.
-const GIANT_LIGHT = [-0.5, -0.25, 0.83]
+// The direction its rings' axis points, so the stripes run parallel to the rings.
+const AXIS = new Vector3(0, 1, 0).applyEuler(new Euler(...GIANT.tilt)).toArray()
+const STRIPE = mix(rgb(PALETTE.orange), rgb(PALETTE.mustard), 0.5)
 
 // The ringed giant that hangs in the sky for the whole descent, with two small moons going round it.
 export default function GiantPlanet() {
   const inner = useRef(null)
   const outer = useRef(null)
-  const body = useMemo(() => createStippleMaterial({ lit: PALETTE.orange, shadow: PALETTE.navy, cell: 4, light: GIANT_LIGHT }), [])
-  const moon = useMemo(() => createStippleMaterial({ lit: PALETTE.cream, shadow: PALETTE.navy, cell: 3 }), [])
+  // Less dither, and the shadow edge slid round to the dark side, so more of the body is in the light.
+  const body = useMemo(() => createStippleMaterial({ lit: PALETTE.orange, shadow: PALETTE.navy, cell: 3, spread: 0.08, lift: 0.2, stripe: STRIPE, axis: AXIS }), [])
+  const moon = useMemo(() => createStippleMaterial({ lit: PALETTE.cream, shadow: PALETTE.navy, cell: 2, spread: 0.12, lift: 0.05, mid: 0.42, midEdge: 0.38 }), [])
+  // Faceted, cratered moons, each its own pattern of craters.
+  const geometries = useMemo(
+    () =>
+      SATELLITES.map((s, i) => {
+        const g = new BufferGeometry()
+        g.setAttribute('position', new Float32BufferAttribute(moonPositions(s.radius, i + 1, 12), 3))
+        g.computeVertexNormals() // not indexed, so each facet is flat
+        g.computeBoundingSphere()
+        return g
+      }),
+    [],
+  )
+  const spinA = useRef(null)
+  const spinB = useRef(null)
 
   useFrame((_, delta) => {
     if (!motion.on) return
-    if (inner.current) inner.current.rotation.y += delta * TURN
-    if (outer.current) outer.current.rotation.y -= delta * TURN * 0.6
+    const dt = Math.min(delta, 0.1)
+    const step = dt * TURN
+    if (inner.current) inner.current.rotation.y += step * SATELLITES[0].speed
+    if (outer.current) outer.current.rotation.y += step * SATELLITES[1].speed
+    // each moon turns on its own axis too, so its craters roll through the light
+    if (spinA.current) spinA.current.rotation.y += dt * 0.12
+    if (spinB.current) spinB.current.rotation.y -= dt * 0.08
   })
 
   return (
@@ -28,15 +51,11 @@ export default function GiantPlanet() {
       <mesh material={body}>
         <sphereGeometry args={[GIANT.radius, 64, 48]} />
       </mesh>
-      <group ref={inner} rotation={[0.25, 0.6, 0]}>
-        <mesh material={moon} position={[2900, 0, 0]}>
-          <sphereGeometry args={[90, 24, 16]} />
-        </mesh>
+      <group ref={inner} rotation={SATELLITES[0].tilt}>
+        <mesh ref={spinA} material={moon} geometry={geometries[0]} position={[SATELLITES[0].orbit, 0, 0]} />
       </group>
-      <group ref={outer} rotation={[-0.15, 2.4, 0.1]}>
-        <mesh material={moon} position={[3600, 0, 0]}>
-          <sphereGeometry args={[60, 24, 16]} />
-        </mesh>
+      <group ref={outer} rotation={SATELLITES[1].tilt}>
+        <mesh ref={spinB} material={moon} geometry={geometries[1]} position={[SATELLITES[1].orbit, 0, 0]} />
       </group>
     </group>
   )

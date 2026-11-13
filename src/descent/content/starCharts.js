@@ -1,0 +1,117 @@
+// Real star charts: the positions (J2000) of the stars that make up each constellation, and the
+// lines that join them. `ra` is right ascension in hours, `dec` is declination in degrees, `mag`
+// is how bright the star looks (smaller is brighter), and `tint` is the star's colour: 'orange'
+// for the cool red giants, 'blue' for the hottest. `faint` marks a star that sits in the figure
+// but is not joined by a line.
+export const CHARTS = {
+  orion: {
+    name: 'Orion',
+    stars: [
+      { name: 'Meissa', ra: 5.585, dec: 9.933, mag: 3.5 },
+      { name: 'Betelgeuse', ra: 5.92, dec: 7.4, mag: 0.5, tint: 'orange' },
+      { name: 'Bellatrix', ra: 5.418, dec: 6.35, mag: 1.6, tint: 'blue' },
+      { name: 'Alnitak', ra: 5.68, dec: -1.933, mag: 1.8, tint: 'blue' },
+      { name: 'Alnilam', ra: 5.603, dec: -1.2, mag: 1.7, tint: 'blue' },
+      { name: 'Mintaka', ra: 5.533, dec: -0.3, mag: 2.2, tint: 'blue' },
+      { name: 'Saiph', ra: 5.797, dec: -9.667, mag: 2.1, tint: 'blue' },
+      { name: 'Rigel', ra: 5.242, dec: -8.2, mag: 0.1, tint: 'blue' },
+    ],
+    links: [
+      ['Meissa', 'Betelgeuse'],
+      ['Meissa', 'Bellatrix'],
+      ['Betelgeuse', 'Alnitak'],
+      ['Bellatrix', 'Mintaka'],
+      ['Alnitak', 'Alnilam'],
+      ['Alnilam', 'Mintaka'],
+      ['Alnitak', 'Saiph'],
+      ['Mintaka', 'Rigel'],
+    ],
+  },
+  scorpius: {
+    name: 'Scorpius',
+    stars: [
+      { name: 'Pi', ra: 15.982, dec: -26.1, mag: 2.9 },
+      { name: 'Dschubba', ra: 16.005, dec: -22.617, mag: 2.3 },
+      { name: 'Graffias', ra: 16.09, dec: -19.8, mag: 2.6 },
+      { name: 'Sigma', ra: 16.353, dec: -25.6, mag: 2.9 },
+      { name: 'Antares', ra: 16.49, dec: -26.433, mag: 1.0, tint: 'orange' },
+      { name: 'Tau', ra: 16.598, dec: -28.217, mag: 2.8 },
+      { name: 'Epsilon', ra: 16.837, dec: -34.3, mag: 2.3 },
+      { name: 'Mu', ra: 16.865, dec: -38.05, mag: 3.0 },
+      { name: 'Zeta', ra: 16.91, dec: -42.367, mag: 3.6 },
+      { name: 'Eta', ra: 17.215, dec: -43.233, mag: 3.3 },
+      { name: 'Sargas', ra: 17.622, dec: -42.983, mag: 1.9 },
+      { name: 'Iota', ra: 17.793, dec: -40.117, mag: 3.0 },
+      { name: 'Kappa', ra: 17.708, dec: -39.033, mag: 2.4 },
+      { name: 'Shaula', ra: 17.56, dec: -37.1, mag: 1.6, tint: 'blue' },
+      { name: 'Lesath', ra: 17.513, dec: -37.3, mag: 2.7 },
+    ],
+    links: [
+      ['Pi', 'Dschubba'],
+      ['Graffias', 'Dschubba'],
+      ['Dschubba', 'Sigma'],
+      ['Sigma', 'Antares'],
+      ['Antares', 'Tau'],
+      ['Tau', 'Epsilon'],
+      ['Epsilon', 'Mu'],
+      ['Mu', 'Zeta'],
+      ['Zeta', 'Eta'],
+      ['Eta', 'Sargas'],
+      ['Sargas', 'Iota'],
+      ['Iota', 'Kappa'],
+      ['Kappa', 'Shaula'],
+      ['Shaula', 'Lesath'],
+    ],
+  },
+  crux: {
+    name: 'The Southern Cross',
+    stars: [
+      { name: 'Acrux', ra: 12.443, dec: -63.1, mag: 0.8, tint: 'blue' },
+      { name: 'Mimosa', ra: 12.795, dec: -59.683, mag: 1.3, tint: 'blue' },
+      { name: 'Gacrux', ra: 12.52, dec: -57.117, mag: 1.6, tint: 'orange' },
+      { name: 'Imai', ra: 12.252, dec: -58.75, mag: 2.8, tint: 'blue' },
+      { name: 'Epsilon', ra: 12.357, dec: -60.4, mag: 3.6, faint: true },
+    ],
+    links: [
+      ['Gacrux', 'Acrux'],
+      ['Imai', 'Mimosa'],
+    ],
+  },
+  'ursa-major': {
+    name: 'The Big Dipper',
+    stars: [
+      { name: 'Dubhe', ra: 11.062, dec: 61.75, mag: 1.8, tint: 'orange' },
+      { name: 'Merak', ra: 11.03, dec: 56.383, mag: 2.3 },
+      { name: 'Phecda', ra: 11.897, dec: 53.683, mag: 2.4 },
+      { name: 'Megrez', ra: 12.257, dec: 57.033, mag: 3.3 },
+      { name: 'Alioth', ra: 12.9, dec: 55.95, mag: 1.8 },
+      { name: 'Mizar', ra: 13.398, dec: 54.933, mag: 2.3 },
+      { name: 'Alkaid', ra: 13.792, dec: 49.317, mag: 1.9, tint: 'blue' },
+    ],
+    links: [
+      ['Dubhe', 'Merak'],
+      ['Merak', 'Phecda'],
+      ['Phecda', 'Megrez'],
+      ['Megrez', 'Dubhe'],
+      ['Megrez', 'Alioth'],
+      ['Alioth', 'Mizar'],
+      ['Mizar', 'Alkaid'],
+    ],
+  },
+  cassiopeia: {
+    name: 'Cassiopeia',
+    stars: [
+      { name: 'Caph', ra: 0.153, dec: 59.15, mag: 2.3 },
+      { name: 'Schedar', ra: 0.675, dec: 56.533, mag: 2.2, tint: 'orange' },
+      { name: 'Gamma', ra: 0.945, dec: 60.717, mag: 2.5, tint: 'blue' },
+      { name: 'Ruchbah', ra: 1.43, dec: 60.233, mag: 2.7 },
+      { name: 'Segin', ra: 1.907, dec: 63.667, mag: 3.4 },
+    ],
+    links: [
+      ['Caph', 'Schedar'],
+      ['Schedar', 'Gamma'],
+      ['Gamma', 'Ruchbah'],
+      ['Ruchbah', 'Segin'],
+    ],
+  },
+}

@@ -1,15 +1,35 @@
 // Where everything is. Positions are [x, y, z], y up. The landing site is the origin.
 
-export const GIANT = { center: [-1500, 1700, -6000], radius: 1400 }
+// The one sun every body in the scene is lit by: the direction it shines FROM, so lit faces turn
+// toward it. It is above, to the left and in front of the viewer, so each planet shows a bright
+// face with its shadow falling low and to the right. Nothing may light itself differently.
+export const SUN = [-0.45, 0.75, 0.5]
+
+export const GIANT = {
+  center: [-1500, 1700, -6000],
+  radius: 1400,
+  // How its rings (and its stripes) are tipped, as x, y, z turns in radians. Only a few degrees
+  // toward the viewer, so the rings are seen nearly edge-on: a long flat ellipse tapering to each side.
+  tilt: [(6 * Math.PI) / 180, 0, (5 * Math.PI) / 180],
+}
 // The destination moon. Its top is the landing ground at y = 0.
 export const MOON = { center: [0, -1500, 0], radius: 1500 }
+// How the moon's spin axis is tipped, as x, y, z turns in radians. Its ring lies in its equator
+// and its winds blow round it, so both turn about this one axis.
+export const MOON_TILT = [0.62, 0, 0.2]
 export const STATION = [140, 1250, -260]
 export const CLOUDS = { yMin: 420, yMax: 760 }
-export const DRONE = [-15, 54, 91]
+export const DRONE = [-31.5, 54, 88.5]
 export const BASE = [-6, 0, -70]
 // Height of the rise the astronaut stands on.
 export const RIDGE_TOP = 7
 export const RIDGE = [-19, 0, 10]
+
+// The radio telescope array on the plain: the middle of its Y, [x, z].
+export const RADIO_ARRAY = [150, -10]
+
+// Where the craft sets down, beside the base: [x, z].
+export const LANDING_PAD = [22, -50]
 
 // The line the craft flies and the ribbon is drawn along.
 // Each point sits ahead of where the camera is at that moment, so the craft leads the eye down.
@@ -18,7 +38,7 @@ export const PATH_POINTS = [
   [300, 1200, -150],
   [40, 330, 60],
   [10, 44, 40],
-  [6, 1, -56],
+  [LANDING_PAD[0], 1, LANDING_PAD[1]],
 ]
 
 // Cubic Hermite between b and c, with tangents mb and mc already scaled to the segment.

@@ -41,6 +41,7 @@ void main() {
   vAlpha = 0.5 + 0.5 * sin(uTime * (0.3 + aSeed) + aSeed * 90.0);
   vec4 mv = viewMatrix * vec4(cameraPosition + position, 1.0);
   gl_Position = projectionMatrix * mv;
+  gl_Position.z = gl_Position.w * 0.99999; // behind every planet
   gl_PointSize = (1.2 + 2.2 * fract(aSeed * 7.0)) * uDpr;
 }
 `
