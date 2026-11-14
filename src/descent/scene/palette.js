@@ -37,9 +37,9 @@ export const WORN = mix(rgb(mustard), rgb(navy), 0.3) // tracks and pads
 export const PALE = mix(rgb(mustard), rgb(cream), 0.6) // painted lines and crater rims
 
 const SPACE = rgb(navy)
-const GROUND_SKY = mix(rgb(navy), rgb(teal), 0.6)
+const GROUND_SKY = mix(rgb(navy), rgb(teal), 0.14)
 
-// Navy in space, turning toward teal as the surface nears.
+// Navy in space, only a shade lighter at the surface: the moon has almost no air, so the sky is nearly as dark as space.
 export function skyColor(p) {
   const t = Math.min(1, Math.max(0, (p - 0.45) / 0.35))
   return mix(SPACE, GROUND_SKY, t)

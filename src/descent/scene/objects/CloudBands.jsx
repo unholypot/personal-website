@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { BufferGeometry, Float32BufferAttribute, ShaderMaterial, Vector3 } from 'three'
 import { MOON } from '../layout.js'
-import { CLOUD_SPIN_SECONDS, CLOUD_TILT, cloudBanks, cloudSpin } from '../clouds.js'
+import { CLOUD_SPIN_SECONDS, CLOUD_TILT, cloudBanks } from '../clouds.js'
 import { PALETTE, mix, rgb } from '../palette.js'
 import { LIGHT, rng } from '../build.js'
 import { GRAIN_GLSL, motion, shared } from '../sceneMaterial.js'
@@ -185,7 +185,6 @@ export default function CloudBands({ progress }) {
     if (!drift.current || !motion.on) return
     // Cap elapsed time so returning to a backgrounded tab never causes a jump.
     drift.current.rotation.y = (drift.current.rotation.y + (Math.min(delta, 0.1) * Math.PI * 2) / CLOUD_SPIN_SECONDS) % (Math.PI * 2)
-    cloudSpin.angle = drift.current.rotation.y
   })
 
   return (

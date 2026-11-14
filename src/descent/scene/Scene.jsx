@@ -15,7 +15,6 @@ import SkyDetails from './objects/SkyDetails.jsx'
 import DeepSky from './objects/DeepSky.jsx'
 import Constellations from './objects/Constellations.jsx'
 import DistantShip from './objects/DistantShip.jsx'
-import CloudShadows from './objects/CloudShadows.jsx'
 import GiantPlanet from './objects/GiantPlanet.jsx'
 import Rings from './objects/Rings.jsx'
 import Moon from './objects/Moon.jsx'
@@ -29,6 +28,7 @@ import Terrain from './objects/Terrain.jsx'
 import Surface from './objects/Surface.jsx'
 import Drone from './objects/Drone.jsx'
 import DomeBase from './objects/DomeBase.jsx'
+import Foreground from './objects/Foreground.jsx'
 import RadioArray from './objects/RadioArray.jsx'
 import Astronaut from './objects/Astronaut.jsx'
 
@@ -108,17 +108,15 @@ export default function Scene({ progress, ready, onWarm }) {
       <DistantShip />
       <OrbitalRocks />
       <CloudBands progress={progress} />
-      <CloudShadows />
       <Surface />
       <Terrain />
       <Drone />
       <DomeBase />
       <RadioArray />
+      <Foreground />
       <Astronaut />
       <TrailRibbon progress={progress} />
-      <TrailRibbon progress={progress} companion />
       <Craft progress={progress} />
-      <Craft progress={progress} companion />
     </>
   )
 }

@@ -77,7 +77,7 @@ export default function Constellations({ progress, ready = true }) {
     if (ready) clock.current += dt
     const sinceReady = motion.on ? clock.current : REVEAL_END + 1
     // fainter once the sky pales near the ground, but never gone
-    const pale = 1 - 0.55 * Math.min(1, Math.max(0, (progress.current - 0.5) / 0.3))
+    const pale = 1 - 0.12 * Math.min(1, Math.max(0, (progress.current - 0.5) / 0.3))
     // which way is right and up on the screen, for the drift
     const e = state.camera.matrixWorld.elements
     items.forEach((item, i) => {

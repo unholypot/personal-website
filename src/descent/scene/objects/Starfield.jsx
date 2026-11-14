@@ -108,7 +108,7 @@ export default function Starfield({ progress }) {
     // Stars thin out as the sky brightens near the ground, but never vanish.
     const p = progress.current
     const t = Math.min(1, Math.max(0, (p - 0.5) / 0.3))
-    if (stars.current) stars.current.material.uniforms.uStrength.value = 1 - 0.55 * t
+    if (stars.current) stars.current.material.uniforms.uStrength.value = 1 - 0.12 * t
   })
 
   return (

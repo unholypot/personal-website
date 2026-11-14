@@ -79,7 +79,7 @@ export default function DeepSky({ progress }) {
   useFrame(() => {
     // fainter once the sky pales near the ground, but never gone
     const t = Math.min(1, Math.max(0, (progress.current - 0.5) / 0.3))
-    for (const object of refs.current) if (object) object.material.uniforms.uStrength.value = 1 - 0.55 * t
+    for (const object of refs.current) if (object) object.material.uniforms.uStrength.value = 1 - 0.12 * t
     // the river's stars shimmer, a little
     const river = refs.current[0]
     if (river) river.material.uniforms.uTwinkle.value = motion.on ? 0.3 : 0

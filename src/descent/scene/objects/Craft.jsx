@@ -5,7 +5,6 @@ import { pathPoint, pathTangent } from '../layout.js'
 import { PALETTE, TONES, mix, rgb } from '../palette.js'
 import { createBuilder } from '../build.js'
 import { createSceneMaterial, motion, shared } from '../sceneMaterial.js'
-import { COMPANION, companionOffset } from '../companion.js'
 
 const UP = new Vector3(0, 1, 0)
 const dir = new Vector3()
@@ -22,8 +21,7 @@ const FLAME = [PALETTE.orange, PALETTE.orange, PALETTE.orange]
 
 // The little rocket that leads the way down, nose first, its engine burning behind it. It is
 // drawn larger the farther off it is, so it stays readable from orbit as well as near the ground.
-// With `companion` it is the second, smaller craft that comes down alongside, on its own path.
-export default function Craft({ progress, companion = false }) {
+export default function Craft({ progress }) {
   const group = useRef(null)
   const flame = useRef(null)
   const body = useMemo(() => {
@@ -53,18 +51,12 @@ export default function Craft({ progress, companion = false }) {
     const p = progress.current
     g.visible = p <= 0.93
     if (!g.visible) return
-    const t = Math.min(1, p + (companion ? COMPANION.lead : CRAFT_LEAD))
+    const t = Math.min(1, p + CRAFT_LEAD)
     const at = pathPoint(t)
-    if (companion) {
-      const o = companionOffset(t)
-      at[0] += o[0]
-      at[1] += o[1]
-      at[2] += o[2]
-    }
     const tan = pathTangent(t)
     g.position.set(at[0], at[1], at[2])
     g.quaternion.setFromUnitVectors(UP, dir.set(tan[0], tan[1], tan[2]))
-    g.scale.setScalar(Math.max(1.5, camera.position.distanceTo(g.position) * 0.019) * (companion ? COMPANION.size : 1))
+    g.scale.setScalar(Math.max(1.5, camera.position.distanceTo(g.position) * 0.019))
     // the flame flutters in length
     if (flame.current && motion.on) {
       const time = shared.uTime.value

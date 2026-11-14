@@ -5,7 +5,6 @@ import { pathPoint, pathTangent } from '../layout.js'
 import { PALETTE, rgb } from '../palette.js'
 import { GRAIN_GLSL, shared } from '../sceneMaterial.js'
 import { CRAFT_LEAD } from './Craft.jsx'
-import { COMPANION, companionOffset } from '../companion.js'
 
 const SEGMENTS = 240
 const STRIPES = [PALETTE.orange, PALETTE.cream, PALETTE.teal]
@@ -13,7 +12,7 @@ const STRIPES = [PALETTE.orange, PALETTE.cream, PALETTE.teal]
 // Half the ribbon's width at path position t: broad out in space, narrow by the ground.
 const halfWidth = (t) => 1 + 14 * (1 - t) * (1 - t)
 
-function build(companion) {
+function build() {
   const pos = []
   const col = []
   const along = []
@@ -21,17 +20,11 @@ function build(companion) {
   for (let i = 0; i <= SEGMENTS; i++) {
     const t = i / SEGMENTS
     const c = pathPoint(t)
-    if (companion) {
-      const o = companionOffset(t)
-      c[0] += o[0]
-      c[1] += o[1]
-      c[2] += o[2]
-    }
     const [tx, , tz] = pathTangent(t)
     // level direction across the path
     const len = Math.hypot(tz, tx) || 1
     const side = [-tz / len, 0, tx / len]
-    const w = halfWidth(t) * (companion ? COMPANION.widthScale : 1)
+    const w = halfWidth(t)
     rows.push([-1, -1 / 3, 1 / 3, 1].map((k) => [c[0] + side[0] * w * k, c[1], c[2] + side[2] * w * k]))
   }
   for (let i = 0; i < SEGMENTS; i++) {
@@ -82,8 +75,8 @@ void main() {
 `
 
 // The striped trail the craft leaves, drawn only as far as the craft has flown.
-export default function TrailRibbon({ progress, companion = false }) {
-  const geometry = useMemo(() => build(companion), [companion])
+export default function TrailRibbon({ progress }) {
+  const geometry = useMemo(() => build(), [])
   const reveal = useMemo(() => ({ value: 0 }), [])
   const material = useMemo(
     () =>
@@ -100,7 +93,7 @@ export default function TrailRibbon({ progress, companion = false }) {
   const mesh = useRef(null)
 
   useFrame(() => {
-    if (mesh.current) mesh.current.material.uniforms.uReveal.value = Math.min(1, progress.current + (companion ? COMPANION.lead : CRAFT_LEAD))
+    if (mesh.current) mesh.current.material.uniforms.uReveal.value = Math.min(1, progress.current + CRAFT_LEAD)
   })
 
   return <mesh ref={mesh} geometry={geometry} material={material} frustumCulled={false} />
