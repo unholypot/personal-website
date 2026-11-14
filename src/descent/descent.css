@@ -237,7 +237,6 @@ html.descent-snap .track-stop {
   font: 600 0.82rem/1 'Josefin Sans', system-ui, sans-serif;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  cursor: pointer;
   box-shadow: 4px 4px 0 var(--ink);
 }
 

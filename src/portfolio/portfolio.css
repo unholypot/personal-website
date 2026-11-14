@@ -166,7 +166,6 @@ a:hover {
   padding: 0;
   border: 0;
   background: none;
-  cursor: pointer;
   text-decoration: underline;
   text-decoration-color: var(--accent);
   text-decoration-thickness: 2px;
@@ -353,7 +352,6 @@ summary {
   gap: 0.5rem 1rem;
   padding: 1.4rem 2.6rem 1.4rem 0;
   position: relative;
-  cursor: pointer;
   list-style: none;
 }
 
