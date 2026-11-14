@@ -31,16 +31,18 @@ export const RADIO_ARRAY = [150, -10]
 // Where the craft sets down, beside the base: [x, z].
 export const LANDING_PAD = [22, -50]
 
-// The line the craft flies and the ribbon is drawn along.
-// The first three points sit ahead of the camera and a little to its right, so the craft leads the eye down and
-// stays in frame. The fourth is straight above the landing pad: the craft comes down from there, tail first.
-export const PATH_POINTS = [
-  [620, 2582, 4780],
-  [374, 1246, 260],
-  [117, 410, -17],
+// The line the craft flies and the ribbon is drawn along. The first point is up and off to the right of the opening
+// view, so the craft comes in from beyond the frame and heads down it; the next two keep it in frame ahead of the
+// camera. The fourth is straight above the landing pad: the craft comes down from there, tail first.
+// A tall phone screen sees a much narrower slice of the sky, so it has its own first three points.
+const LANDING = [
   [24, 110, -50],
   [LANDING_PAD[0], 1.4, LANDING_PAD[1]],
 ]
+export const PATH_POINTS_WIDE = [[1538, 3069, 3051], [537, 1434, 272], [125, 413, -30], ...LANDING]
+export const PATH_POINTS_TALL = [[599, 4002, 2032], [472, 1371, -314], [56, 520, -83], ...LANDING]
+const tall = typeof window !== 'undefined' && window.innerWidth / window.innerHeight < 1
+export const PATH_POINTS = tall ? PATH_POINTS_TALL : PATH_POINTS_WIDE
 
 // Cubic Hermite between b and c, with tangents mb and mc already scaled to the segment.
 export function hermite(b, c, mb, mc, t) {

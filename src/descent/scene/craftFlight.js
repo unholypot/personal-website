@@ -1,18 +1,18 @@
 // How the little rocket flies, by scroll progress p. Pure timing and shape; Craft.jsx and TrailRibbon.jsx draw it.
 //
 // 1. Until the thesis shot it follows its line nose first, trailing the striped ribbon.
-// 2. Then the ribbon is reeled in, and the rocket turns itself over on its side jets until its engine points down.
+// 2. Then the ribbon melts away, and the rocket turns itself over on its side jets until its engine points down.
 // 3. It comes down slowly on its engine, straight onto the landing pad, and stands there.
 import { hermite } from './layout.js'
 
 export const CRAFT_LEAD = 0.04 // how far along its line it is ahead of the camera's progress, until the thesis shot
 
-export const TURN_START = 0.57 // it begins to turn over
-export const TURN_END = 0.66 // and is upright, engine down
+export const TURN_START = 0.6 // it begins to turn over, once the trail has all but gone
+export const TURN_END = 0.68 // and is upright, engine down
 export const TOUCHDOWN = 0.85 // it settles on the pad
 
-export const TRAIL_OFF_START = 0.55 // the ribbon begins to be taken in, from its tail
-export const TRAIL_OFF_END = 0.64 // and is gone
+export const TRAIL_OFF_START = 0.55 // the ribbon begins to melt away, from its tail, as the thesis shot ends
+export const TRAIL_OFF_END = 0.62 // and is gone
 
 const HAND_OVER = TURN_START - 0.01 // from here the line is followed at its own pace, not the camera's
 
