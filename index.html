@@ -1,47 +1,25 @@
 <!doctype html>
 <html lang="en">
   <head>
-  <meta charset="UTF-8" />
-
-  <link rel="icon"
-    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦀</text></svg>">
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Apply saved theme immediately to prevent flash.
-       Defaults to light mode if no preference has been saved, which
-       matches the initial state in App.jsx. Keeping the two in sync
-       avoids a dark-to-light flash on a first visit. -->
-  <script>
-    (function () {
-      var saved = localStorage.getItem('theme');
-      if (saved === 'dark') {
-        document.documentElement.classList.add('dark');
-      }
-    })();
-  </script>
-
-  <!-- Page Title -->
-  <title>Allen Saji</title>
-
-  <!-- SEO -->
-  <meta name="title" content="Allen Saji">
-  <meta name="description" content="Allen Saji, engineering student portfolio featuring projects in robotics, embedded systems, machine learning, and renewable energy.">
-
-  <!-- Open Graph -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Allen Saji">
-  <meta property="og:description" content="Engineering student portfolio: software, embedded systems, machine learning, and renewable energy.">
-  <meta property="og:site_name" content="Allen Saji">
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Allen Saji">
-  <meta name="twitter:description" content="Engineering student portfolio: software, embedded systems, machine learning, and renewable energy.">
-
-</head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#14213D" />
+    <meta name="description" content="Allen Saji, engineering student at QUT. Scroll down from deep space to see his projects in software, electrical and machine learning." />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪐</text></svg>" />
+    <title>Allen Saji | Engineering student</title>
+    <meta property="og:title" content="Allen Saji" />
+    <meta property="og:description" content="Engineering student at QUT. Scroll down from deep space to see what I have built." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://allensaji.com/" />
+    <meta property="og:image" content="https://allensaji.com/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Allen Saji, engineering student at QUT, open to internships and graduate roles" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://allensaji.com/og.png" />
+  </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/descent/main.jsx"></script>
   </body>
 </html>

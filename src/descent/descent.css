@@ -1,0 +1,607 @@
+:root {
+  --cream: #f2e6ce;
+  --orange: #d9532b;
+  --mustard: #e3a72f;
+  --teal: #2f8f8b;
+  --navy: #14213d;
+  --ink: #0b1220;
+  /* the paper border */
+  --edge: clamp(10px, 2.2vw, 28px);
+  --gutter: clamp(16px, 4vw, 56px);
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--navy);
+  color: var(--cream);
+}
+
+/* Touch has no hover and no click highlight: no blue flash over the page when it is tapped, and no
+   wait for a double-tap. Links and buttons keep their own pressed and focus states. */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* The scene sits fixed behind the page. lvh, so a phone's toolbar sliding away never resizes it. */
+.stage {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100lvh;
+  will-change: transform;
+  pointer-events: none;
+  /* hidden until it has drawn a few steady frames, so the page never opens on a stutter */
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.stage-ready {
+  opacity: 1;
+}
+
+/* The scroll length: five stretches, one per stop. The captions arrive a quarter of the way apart, which
+   is a little over a screen and a bit of scrolling each. */
+.track-stop {
+  height: 108vh;
+  height: 108lvh;
+}
+
+/* Reduced motion: one screen per stop, and the page settles on each. */
+html.descent-snap {
+  scroll-snap-type: y mandatory;
+}
+
+html.descent-snap .track-stop {
+  height: 100vh;
+  height: 100lvh;
+  scroll-snap-align: start;
+}
+
+/* ---------- Opening: the name alone while the scene warms up ---------- */
+.opening {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 100vh;
+  height: 100lvh;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  background: var(--navy);
+  transition: opacity 0.6s ease;
+}
+
+.opening-done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.opening-name {
+  color: var(--cream);
+  font: 400 clamp(3rem, 12vw, 9rem) / 1 'Bebas Neue', Impact, sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---------- No scene: the captions as a plain page ---------- */
+.no-gl .captions {
+  position: static;
+  height: auto;
+  pointer-events: auto;
+  padding: calc(var(--edge) + var(--gutter));
+  display: grid;
+  gap: clamp(3rem, 10vh, 6rem);
+}
+
+.no-gl .caption {
+  position: static;
+}
+
+/* ---------- Captions: set like the lettering at the foot of a travel poster ---------- */
+/* Every full-screen layer is sized once and never follows a phone's toolbar as it slides away, or the
+   frame would stall for a moment during the first scroll and then snap. The paper and the scrim are as
+   tall as the scene (the large viewport); the lettering is set against the small one, so it is never
+   under the toolbar. Each is its own compositor layer, so scrolling never repaints them. */
+.captions {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 100vh;
+  height: 100svh;
+  z-index: 2;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.caption {
+  position: absolute;
+  left: calc(var(--edge) + var(--gutter));
+  right: calc(var(--edge) + var(--gutter));
+  bottom: calc(var(--edge) + clamp(20px, 6vh, 64px) + env(safe-area-inset-bottom, 0px));
+  max-width: 40rem;
+  will-change: opacity, transform;
+}
+
+/* the line that says what a stop is sits inside the ink box, where it always reads */
+.caption-kicker {
+  margin: 0 0 0.4rem;
+  color: var(--mustard);
+  font: 600 0.9rem/1.2 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.06em;
+}
+
+.caption-title {
+  margin: 0;
+  color: var(--cream);
+  font: 400 clamp(2.2rem, 6.4vw, 6rem) / 0.92 'Bebas Neue', Impact, sans-serif;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  /* a hard offset shadow, like a second ink pass printed out of register */
+  text-shadow: 0.045em 0.045em 0 var(--ink);
+  text-wrap: balance;
+}
+
+.caption-body {
+  margin: 0.9rem 0 0;
+  max-width: 36ch;
+  padding: 0.85em 1em 0.7em;
+  background: var(--ink);
+  color: var(--cream);
+  font: 400 clamp(0.95rem, 1.25vw, 1.1rem) / 1.5 'Josefin Sans', system-ui, sans-serif;
+  text-wrap: pretty;
+}
+
+.caption-body p {
+  margin: 0;
+}
+
+.caption-body .caption-kicker {
+  margin-bottom: 0.4rem;
+}
+
+.caption-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.caption-links a {
+  display: inline-flex;
+  align-items: center;
+  /* a comfortable target for a thumb: 44px tall on touch screens, 40px otherwise */
+  min-height: 40px;
+  padding: 0 1.05em;
+  border: 2px solid var(--ink);
+  background: var(--cream);
+  color: var(--ink);
+  font: 600 0.82rem/1 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.16em;
+  text-decoration: none;
+  text-transform: uppercase;
+  pointer-events: auto;
+  box-shadow: 4px 4px 0 var(--ink);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+@media (pointer: coarse) {
+  .caption-links a {
+    min-height: 44px;
+  }
+}
+
+/* ink on orange is 4.7:1; cream on it was 3.2:1 */
+.caption-links li:first-child a {
+  background: var(--orange);
+  color: var(--ink);
+}
+
+.caption-links a:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.caption-links a:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 var(--ink);
+}
+
+/* Cream ring inside an ink ring, so it shows on mustard, teal, navy and cream alike. */
+.caption-links a:focus-visible,
+.mode-switch:focus-visible {
+  outline: 3px solid var(--cream);
+  outline-offset: 0;
+  box-shadow:
+    0 0 0 6px var(--ink),
+    4px 4px 0 6px var(--ink);
+}
+
+/* ---------- Switching between the animation and a plain page ---------- */
+.mode-switch {
+  position: fixed;
+  top: calc(var(--edge) + 12px);
+  left: calc(var(--edge) + 12px);
+  z-index: 6;
+  padding: 0.7em 1.1em 0.6em;
+  border: 2px solid var(--ink);
+  background: var(--cream);
+  color: var(--ink);
+  font: 600 0.82rem/1 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+/* The skip control stays out of sight until the keyboard reaches it. */
+.mode-switch.skip:not(:focus) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+  box-shadow: none;
+}
+
+/* ---------- The constellations: a label for the skill in focus, and a hint to look ---------- */
+.sky-label {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  width: min(21rem, calc(100vw - 2 * (var(--edge) + var(--gutter))));
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  will-change: transform, opacity;
+}
+
+.sky-label-on {
+  opacity: 1;
+}
+
+.sky-label-kicker {
+  margin: 0 0 0.35rem;
+  color: var(--mustard);
+  font: 600 0.82rem/1 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.08em;
+}
+
+.sky-label-title {
+  margin: 0;
+  color: var(--cream);
+  font: 400 clamp(1.8rem, 3.4vw, 2.5rem) / 0.95 'Bebas Neue', Impact, sans-serif;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  text-shadow: 0.05em 0.05em 0 var(--ink);
+}
+
+.sky-label-body {
+  margin: 0.5rem 0 0;
+  padding: 0.75em 0.9em 0.8em;
+  background: var(--ink);
+  color: var(--cream);
+  font: 400 0.9rem/1.5 'Josefin Sans', system-ui, sans-serif;
+}
+
+.sky-label-tagline {
+  margin: 0 0 0.6rem;
+  color: var(--mustard);
+  font: 400 0.9rem/1.3 'Josefin Sans', system-ui, sans-serif;
+  font-style: italic;
+}
+
+.sky-label-items {
+  margin: 0;
+  font: 400 0.95rem/1.5 'Josefin Sans', system-ui, sans-serif;
+  text-wrap: pretty;
+}
+
+.sky-star,
+.sky-star-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.14s ease;
+  will-change: transform, opacity;
+}
+
+.sky-star-on {
+  opacity: 1;
+}
+
+/* a thin ring round the star being named */
+.sky-star-ring::before {
+  content: '';
+  position: absolute;
+  left: -11px;
+  top: -11px;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--cream);
+  border-radius: 50%;
+}
+
+.sky-star {
+  max-width: 15rem;
+  padding: 0.6em 0.8em 0.55em;
+  background: var(--ink);
+  color: var(--cream);
+}
+
+.sky-star p {
+  margin: 0;
+}
+
+.sky-star-name {
+  font: 400 1.5rem/1 'Bebas Neue', Impact, sans-serif;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.sky-star-of {
+  margin-top: 0.15rem !important;
+  color: var(--mustard);
+  font: 400 0.82rem/1.3 'Josefin Sans', system-ui, sans-serif;
+  font-style: italic;
+}
+
+.sky-star-note {
+  margin-top: 0.35rem !important;
+  font: 400 0.85rem/1.4 'Josefin Sans', system-ui, sans-serif;
+}
+
+.sky-hint {
+  position: fixed;
+  top: calc(var(--edge) + 14px);
+  left: calc(var(--edge) + var(--gutter));
+  z-index: 4;
+  margin: 0;
+  color: var(--cream);
+  font: 400 0.95rem/1.2 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 0 var(--ink), 0 0 10px var(--ink);
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.sky-hint-gone {
+  opacity: 0;
+}
+
+.sky-hint-touch {
+  display: none;
+}
+
+/* fingers do not hover: say tap, and keep the line inside the frame */
+@media (hover: none) {
+  .sky-hint-mouse {
+    display: none;
+  }
+
+  .sky-hint-touch {
+    display: inline;
+  }
+}
+
+@media (max-width: 700px) {
+  .sky-hint {
+    right: calc(var(--edge) + var(--gutter));
+    max-width: 20rem;
+    text-wrap: balance;
+  }
+}
+
+/* ---------- Skills as plain text: read aloud in the animated view, shown in the plain page ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skill-list {
+  max-width: 40rem;
+}
+
+.skill-list h2 {
+  margin: 0 0 0.8rem;
+  color: var(--cream);
+  font: 400 clamp(2.2rem, 6.4vw, 4rem) / 0.92 'Bebas Neue', Impact, sans-serif;
+  text-transform: uppercase;
+  text-shadow: 0.045em 0.045em 0 var(--ink);
+}
+
+.skill-list ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skill-list li {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.75em 1em 0.65em;
+  background: var(--ink);
+  color: var(--cream);
+  font: 400 0.95rem/1.5 'Josefin Sans', system-ui, sans-serif;
+}
+
+.skill-list strong {
+  color: var(--mustard);
+  font: 600 0.78rem/1.2 'Josefin Sans', system-ui, sans-serif;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ---------- Scroll cue: a chevron at the foot of the first screen, wide screens only ---------- */
+.scroll-cue {
+  display: none;
+}
+
+@media (min-width: 700px) {
+  .scroll-cue {
+    position: fixed;
+    right: calc(var(--edge) + var(--gutter));
+    bottom: calc(var(--edge) + clamp(20px, 6vh, 64px));
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--cream);
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    /* the lettering's own offset shadow, in a drop filter-free form */
+    text-shadow: 0.08em 0.08em 0 var(--ink);
+  }
+
+  .scroll-cue-gone {
+    opacity: 0;
+  }
+
+  .scroll-cue-label {
+    font: 600 0.78rem/1 'Josefin Sans', system-ui, sans-serif;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    padding-left: 0.3em;
+  }
+
+  .scroll-cue-arrow {
+    display: block;
+    animation: cue-nod 1.6s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  }
+}
+
+@keyframes cue-nod {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+/* ---------- The paper: border, darkened corners, grain ---------- */
+.poster-frame {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 100vh;
+  height: 100lvh;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+  will-change: transform;
+}
+
+/* A soft darkening under the lettering (above the scene, below the captions), so cream titles
+   hold against mustard ground and orange planet. */
+.scrim {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 100vh;
+  height: 100lvh;
+  will-change: transform;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(11, 18, 32, 0.6) 0%, rgba(11, 18, 32, 0.28) 24%, transparent 46%);
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(11, 18, 32, 0.45) 100%);
+}
+
+/* Plain alpha, no blend mode and no filter: one cheap layer. It is larger than the screen
+   so it can jump about without showing an edge. */
+.grain {
+  position: absolute;
+  inset: -120px;
+  will-change: transform;
+  animation: grain-jump 0.48s steps(1) infinite;
+}
+
+@keyframes grain-jump {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(57px, -41px);
+  }
+  50% {
+    transform: translate(-38px, 66px);
+  }
+  75% {
+    transform: translate(33px, 44px);
+  }
+}
+
+.edge {
+  position: absolute;
+  background: var(--cream);
+}
+
+.edge-top,
+.edge-bottom {
+  left: 0;
+  right: 0;
+  height: var(--edge);
+}
+
+.edge-left,
+.edge-right {
+  top: 0;
+  bottom: 0;
+  width: var(--edge);
+}
+
+.edge-top {
+  top: 0;
+}
+
+.edge-bottom {
+  bottom: 0;
+}
+
+.edge-left {
+  left: 0;
+}
+
+.edge-right {
+  right: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain,
+  .scroll-cue-arrow {
+    animation: none;
+  }
+
+  .caption-links a {
+    transition: none;
+  }
+}

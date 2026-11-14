@@ -1,0 +1,254 @@
+import { useMemo } from 'react'
+import { BASE, LANDING_PAD, RADIO_ARRAY, RIDGE } from '../layout.js'
+import { PALETTE, mix, rgb } from '../palette.js'
+import { createBuilder, rng } from '../build.js'
+import { createSceneMaterial } from '../sceneMaterial.js'
+import { addCrater, addRays } from '../craters.js'
+import { PLAIN_RADIUS, PLAIN_BLEND_RADIUS, addPatch, groundAt } from '../ground.js'
+
+const mustard = rgb(PALETTE.mustard)
+const navy = rgb(PALETTE.navy)
+const BRIGHT = mix(mustard, rgb(PALETTE.cream), 0.24) // pale uplands
+const BLOT = mix(mustard, rgb(PALETTE.orange), 0.3) // broad warm lowlands
+const DUSK = mix(mustard, navy, 0.14) // faint darker ground and long cracks
+const SPECK = mix(mustard, navy, 0.3)
+const MARE = mix(mustard, navy, 0.2) // broad dark plains of old lava
+const CHANNEL = mix(mustard, navy, 0.42) // the floor of a rille
+const LEE = mix(mustard, rgb(PALETTE.cream), 0.4) // the pale side of a ripple, facing the sun
+
+// How far out from the landing site the markings go. The moon's edge is at 1500.
+const REACH = 1300
+
+// Height above the ground: a touch more out on the slope, where the moon's own facets sit a
+// little under its true curve. Later layers are drawn over earlier ones regardless.
+const lift = (x, z) => (Math.hypot(x, z) < PLAIN_RADIUS ? 0.12 : 0.9)
+
+// A marking must sit wholly on the plain or wholly on the slope, and wholly on the moon.
+const fits = (x, z, radius) => {
+  const r = Math.hypot(x, z)
+  return (r + radius < PLAIN_RADIUS - 15 || r - radius > PLAIN_RADIUS + 15) && r + radius < REACH + 120
+}
+
+const near = (x, z, [cx, cz], d) => Math.hypot(x - cx, z - cz) < d
+// Keep the base, the pad and the astronaut's mountain clear of craters.
+const busy = (x, z, radius) =>
+  near(x, z, [BASE[0], BASE[2]], 75 + radius) || near(x, z, LANDING_PAD, 20 + radius) || near(x, z, [RIDGE[0], RIDGE[2]], 30 + radius) || near(x, z, RADIO_ARRAY, 55 + radius)
+
+// A thin crack wandering across the ground.
+function crack(b, x, z, rand) {
+  let heading = rand() * Math.PI * 2
+  let at = [x, z]
+  const pieces = 5 + Math.floor(rand() * 6)
+  for (let i = 0; i < pieces; i++) {
+    heading += (rand() - 0.5) * 0.9
+    const len = 18 + rand() * 30
+    const next = [at[0] + Math.cos(heading) * len, at[1] + Math.sin(heading) * len]
+    const half = 0.9 + rand() * 0.8
+    const nx = -Math.sin(heading) * half
+    const nz = Math.cos(heading) * half
+    const quad = [
+      [at[0] - nx, at[1] - nz],
+      [next[0] - nx, next[1] - nz],
+      [next[0] + nx, next[1] + nz],
+      [at[0] + nx, at[1] + nz],
+    ]
+    const radii = quad.map(([qx, qz]) => Math.hypot(qx, qz))
+    const crossesApron = Math.min(...radii) < PLAIN_BLEND_RADIUS && Math.max(...radii) > PLAIN_RADIUS
+    if (!crossesApron && quad.every(([qx, qz]) => fits(qx, qz, 0) && !busy(qx, qz, 6)))
+      b.flat(quad.map(([qx, qz]) => [qx, groundAt(qx, qz) + lift(qx, qz), qz]), [SPECK])
+    at = next
+  }
+}
+
+// A strip lying on the ground along a line of [x, z] points, `half` wide each side, in one colour.
+function strip(b, points, half, color) {
+  for (let i = 0; i < points.length - 1; i++) {
+    const [ax, az] = points[i]
+    const [bx, bz] = points[i + 1]
+    const len = Math.hypot(bx - ax, bz - az) || 1
+    const nx = (-(bz - az) / len) * half
+    const nz = ((bx - ax) / len) * half
+    const quad = [
+      [ax - nx, az - nz],
+      [bx - nx, bz - nz],
+      [bx + nx, bz + nz],
+      [ax + nx, az + nz],
+    ]
+    const radii = quad.map(([qx, qz]) => Math.hypot(qx, qz))
+    if (Math.min(...radii) < PLAIN_BLEND_RADIUS && Math.max(...radii) > PLAIN_RADIUS) continue
+    if (quad.every(([qx, qz]) => fits(qx, qz, 0) && !busy(qx, qz, 6))) b.flat(quad.map(([qx, qz]) => [qx, groundAt(qx, qz) + lift(qx, qz), qz]), [color])
+  }
+}
+
+// A rille: a long, shallow, winding channel with a pale lip along its sunward side.
+function rille(b, x, z, rand) {
+  let heading = rand() * Math.PI * 2
+  const points = [[x, z]]
+  const width = 1.6 + rand() * 1.6
+  for (let i = 0; i < 16; i++) {
+    heading += (rand() - 0.5) * 0.55
+    const [px, pz] = points[points.length - 1]
+    points.push([px + Math.cos(heading) * 38, pz + Math.sin(heading) * 38])
+  }
+  strip(b, points, width, CHANNEL)
+  strip(b, points.map(([px, pz]) => [px - 0.7 * width, pz - 0.9 * width]), width * 0.28, LEE)
+}
+
+// Rippled dust: a set of fine parallel curved lines, dark with a pale edge, like wind-blown sand.
+function ripples(b, cx, cz, rand) {
+  const heading = rand() * Math.PI * 2
+  const along = [Math.cos(heading), Math.sin(heading)]
+  const across = [-along[1], along[0]]
+  const length = 26 + rand() * 34
+  const rows = 6 + Math.floor(rand() * 5)
+  const bend = 0.08 + rand() * 0.14
+  for (let r = 0; r < rows; r++) {
+    const offset = (r - rows / 2) * 3.4
+    const line = Array.from({ length: 7 }, (_, k) => {
+      const t = (k / 6 - 0.5) * length
+      const wobble = Math.sin(t * bend + r * 0.7) * 1.4
+      return [cx + along[0] * t + across[0] * (offset + wobble), cz + along[1] * t + across[1] * (offset + wobble)]
+    })
+    strip(b, line, 0.5, SPECK)
+    strip(b, line.map(([px, pz]) => [px + across[0] * 0.9, pz + across[1] * 0.9]), 0.28, LEE)
+  }
+}
+
+// Scree: little angular chips of rock lying in a patch, each a dark shard with a pale side.
+function scree(b, cx, cz, size, rand) {
+  for (let k = 0; k < 46; k++) {
+    const a = rand() * Math.PI * 2
+    const d = Math.sqrt(rand()) * size
+    const x = cx + Math.cos(a) * d
+    const z = cz + Math.sin(a) * d
+    const s = 1 + rand() * 2.4
+    if (!fits(x, z, s * 2) || busy(x, z, 0)) continue
+    const turn = rand() * Math.PI * 2
+    const corner = (m, scale) => [x + Math.cos(turn + m * 2.1) * s * scale, z + Math.sin(turn + m * 2.1) * s * scale]
+    const tri = [corner(0, 1), corner(1, 0.8), corner(2, 1.2)]
+    if (tri.some(([tx, tz]) => Math.min(Math.hypot(tx, tz) - PLAIN_RADIUS, 0) > -15 && Math.hypot(tx, tz) < PLAIN_RADIUS + 15)) continue
+    const radii = tri.map(([tx, tz]) => Math.hypot(tx, tz))
+    if (Math.min(...radii) < PLAIN_BLEND_RADIUS && Math.max(...radii) > PLAIN_RADIUS) continue
+    b.flat(tri.map(([tx, tz]) => [tx, groundAt(tx, tz) + lift(tx, tz), tz]), [CHANNEL])
+    const lit = tri.map(([tx, tz]) => [tx - s * 0.5, tz + s * 0.35])
+    b.flat(lit.map(([tx, tz]) => [tx, groundAt(tx, tz) + lift(tx, tz) + 0.01, tz]), [LEE])
+  }
+}
+
+// What the moon's surface looks like from above: lowlands and uplands in slightly different
+// tones, fields of stippled dots, long cracks, and craters of every kind: real bowls with raised
+// rims, terraced walls and central peaks, streaks of dust thrown out from the youngest, secondary
+// craters round the big ones, and chains of small ones.
+export default function Surface() {
+  const geometry = useMemo(() => {
+    const b = createBuilder()
+    const rand = rng(77)
+    const spot = (min, max) => {
+      const a = rand() * Math.PI * 2
+      // spread evenly over the area, not bunched toward the middle
+      const d = Math.sqrt(min * min + rand() * (max * max - min * min))
+      return [Math.cos(a) * d, Math.sin(a) * d]
+    }
+    const blot = (color, min, max, small, large) => {
+      const [x, z] = spot(min, max)
+      const radius = small + rand() * (large - small)
+      const lobes = 2 + Math.floor(rand() * 4)
+      const phase = rand() * 6
+      if (!fits(x, z, radius * 1.3)) return
+      addPatch(b, x, z, (a) => radius * (1 + 0.22 * Math.sin(a * lobes + phase) + 0.08 * Math.sin(a * 7 + phase)), color, lift(x, z), { segments: 30 })
+    }
+
+    // broad regions of slightly different ground
+    for (let i = 0; i < 12; i++) blot(BLOT, 520, REACH, 120, 280)
+    for (let i = 0; i < 9; i++) blot(DUSK, 480, REACH, 90, 220)
+    for (let i = 0; i < 12; i++) blot(BRIGHT, 480, REACH, 70, 200)
+    for (let i = 0; i < 5; i++) blot(DUSK, 130, 330, 30, 60)
+
+    // stippled fields: dots that thin out toward one edge, like a printed halftone
+    for (let i = 0; i < 22; i++) {
+      const [cx, cz] = spot(120, REACH)
+      const size = 45 + rand() * 90
+      const lean = rand() * Math.PI * 2
+      for (let k = 0; k < 34; k++) {
+        const a = rand() * Math.PI * 2
+        const d = Math.sqrt(rand()) * size
+        const x = cx + Math.cos(a) * d
+        const z = cz + Math.sin(a) * d
+        // denser on the side the field leans toward
+        if (rand() > 0.55 + 0.45 * Math.cos(a - lean)) continue
+        const radius = 1.1 + rand() * 2.6
+        if (!fits(x, z, radius) || busy(x, z, 0)) continue
+        addPatch(b, x, z, () => radius, SPECK, lift(x, z), { segments: 6 })
+      }
+    }
+
+    for (let i = 0; i < 16; i++) crack(b, ...spot(140, REACH - 100), rand)
+
+    // more to find from the air: dark plains of old lava, winding rilles, rippled dust and scree
+    for (let i = 0; i < 9; i++) blot(MARE, 520, REACH, 80, 170)
+    for (let i = 0; i < 5; i++) rille(b, ...spot(500, REACH - 560), rand)
+    for (let i = 0; i < 18; i++) ripples(b, ...spot(130, REACH - 60), rand)
+    for (let i = 0; i < 26; i++) scree(b, ...spot(110, REACH - 40), 28 + rand() * 40, rand)
+
+    // Where every crater goes is settled first, so the dust streaks can be laid beneath them all.
+    const craters = []
+    const free = (x, z, r) => craters.every(([cx, cz, cr]) => Math.hypot(x - cx, z - cz) > (r + cr) * 0.95)
+    const place = (x, z, r) => {
+      if (!fits(x, z, r * 1.7) || busy(x, z, r) || !free(x, z, r)) return false
+      craters.push([x, z, r])
+      return true
+    }
+    // small craters scattered in the ground right round the base, which the general rule keeps clear
+    for (let i = 0, made = 0; i < 80 && made < 16; i++) {
+      const a = rand() * Math.PI * 2
+      const d = 50 + rand() * 30
+      const x = BASE[0] + Math.cos(a) * d
+      const z = BASE[2] + Math.sin(a) * d
+      const r = 2 + rand() * 3.4
+      if (near(x, z, LANDING_PAD, 24 + r) || near(x, z, [RIDGE[0], RIDGE[2]], 22 + r) || !fits(x, z, r * 1.7) || !free(x, z, r)) continue
+      craters.push([x, z, r])
+      made++
+    }
+    const big = []
+    for (let i = 0; i < 24 && big.length < 9; i++) {
+      const [x, z] = spot(480, REACH - 80)
+      const r = 52 + rand() * 56
+      if (place(x, z, r)) big.push([x, z, r])
+    }
+    for (let i = 0; i < 90; i++) {
+      const [x, z] = spot(110, REACH)
+      place(x, z, 13 + Math.pow(rand(), 1.4) * 27)
+    }
+    // small craters cluster round the big ones, where the thrown-out rock fell
+    for (const [bx, bz, br] of big) {
+      for (let i = 0; i < 12; i++) {
+        const a = rand() * Math.PI * 2
+        const d = br * (1.5 + rand() * 1.3)
+        place(bx + Math.cos(a) * d, bz + Math.sin(a) * d, 4 + rand() * 6)
+      }
+    }
+    // and now and then a chain of small ones, strung out along a line
+    for (let c = 0; c < 4; c++) {
+      let [x, z] = spot(200, REACH - 100)
+      const heading = rand() * Math.PI * 2
+      const links = 6 + Math.floor(rand() * 4)
+      for (let i = 0; i < links; i++) {
+        place(x + (rand() - 0.5) * 3, z + (rand() - 0.5) * 3, 4 + rand() * 3)
+        x += Math.cos(heading) * (19 + rand() * 8)
+        z += Math.sin(heading) * (19 + rand() * 8)
+      }
+    }
+    for (let i = 0; i < 170; i++) {
+      const [x, z] = spot(90, REACH)
+      place(x, z, 3 + rand() * 7)
+    }
+
+    // dust streaks from the biggest craters, first, so every crater lies over them
+    for (const [x, z, r] of big.slice(0, 4)) addRays(b, x, z, r, rand, 10 + Math.floor(rand() * 7), lift(x, z) - 0.04, (qx, qz) => busy(qx, qz, 0) || !fits(qx, qz, 0))
+    // then the craters themselves, large first so the small ones are never buried
+    craters.sort((p, q) => q[2] - p[2]).forEach(([x, z, r]) => addCrater(b, x, z, r, rand, lift(x, z)))
+    return b.toGeometry()
+  }, [])
+  const material = useMemo(() => createSceneMaterial({ fogNear: 2500, fogFar: 14000, doubleSided: true, decal: true }), [])
+  return <mesh geometry={geometry} material={material} renderOrder={1} />
+}
