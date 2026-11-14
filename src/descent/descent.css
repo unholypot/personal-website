@@ -471,45 +471,6 @@ html.descent-snap .track-stop {
 
 /* A soft darkening under the lettering (above the scene, below the captions), so cream titles
    hold against mustard ground and orange planet. */
-.sun-corner {
-  position: fixed;
-  top: var(--edge);
-  left: var(--edge);
-  z-index: 1;
-  width: min(46vw, 34rem);
-  aspect-ratio: 1;
-  overflow: hidden;
-  pointer-events: none;
-  mix-blend-mode: screen;
-  transition: opacity 0.2s linear;
-}
-
-.sun-corner svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.sun-rays {
-  transform-origin: 0 0;
-  animation: sun-turn 300s linear infinite;
-}
-
-@keyframes sun-turn {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(14deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sun-rays {
-    animation: none;
-  }
-}
-
 .scrim {
   position: fixed;
   inset: 0;
