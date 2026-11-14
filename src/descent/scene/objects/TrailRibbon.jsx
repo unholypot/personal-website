@@ -4,7 +4,7 @@ import { BufferGeometry, DoubleSide, Float32BufferAttribute, ShaderMaterial } fr
 import { pathPoint, pathTangent } from '../layout.js'
 import { PALETTE, rgb } from '../palette.js'
 import { GRAIN_GLSL, shared } from '../sceneMaterial.js'
-import { CRAFT_LEAD } from './Craft.jsx'
+import { TRAIL_OFF_END, craftT, trailReeled } from '../craftFlight.js'
 
 const SEGMENTS = 240
 const STRIPES = [PALETTE.orange, PALETTE.cream, PALETTE.teal]
@@ -66,18 +66,20 @@ void main() {
 const FRAG = /* glsl */ `
 ${GRAIN_GLSL}
 uniform float uReveal;
+uniform float uStart;
 varying float vAlong;
 varying vec3 vColor;
 void main() {
-  if (vAlong > uReveal) discard;
+  if (vAlong > uReveal || vAlong < uStart) discard;
   gl_FragColor = vec4(grain(vColor), 1.0);
 }
 `
 
-// The striped trail the craft leaves, drawn only as far as the craft has flown.
+// The striped trail the craft leaves, drawn only as far as the craft has flown, and reeled back in after the thesis shot.
 export default function TrailRibbon({ progress }) {
   const geometry = useMemo(() => build(), [])
   const reveal = useMemo(() => ({ value: 0 }), [])
+  const start = useMemo(() => ({ value: 0 }), [])
   const material = useMemo(
     () =>
       new ShaderMaterial({
@@ -85,15 +87,20 @@ export default function TrailRibbon({ progress }) {
         fragmentShader: FRAG,
         vertexColors: true,
         side: DoubleSide,
-        uniforms: { uTime: shared.uTime, uDpr: shared.uDpr, uReveal: reveal },
+        uniforms: { uTime: shared.uTime, uDpr: shared.uDpr, uReveal: reveal, uStart: start },
       }),
-    [reveal],
+    [reveal, start],
   )
 
   const mesh = useRef(null)
 
   useFrame(() => {
-    if (mesh.current) mesh.current.material.uniforms.uReveal.value = Math.min(1, progress.current + CRAFT_LEAD)
+    // drawn as far as the craft has flown, then taken in from its tail once the craft turns away from it
+    const head = Math.min(craftT(progress.current), craftT(TRAIL_OFF_END))
+    if (!mesh.current) return
+    const uniforms = mesh.current.material.uniforms
+    uniforms.uReveal.value = head
+    uniforms.uStart.value = head * trailReeled(progress.current)
   })
 
   return <mesh ref={mesh} geometry={geometry} material={material} frustumCulled={false} />

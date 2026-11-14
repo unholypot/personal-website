@@ -32,13 +32,14 @@ export const RADIO_ARRAY = [150, -10]
 export const LANDING_PAD = [22, -50]
 
 // The line the craft flies and the ribbon is drawn along.
-// Each point sits ahead of where the camera is at that moment, so the craft leads the eye down.
+// The first three points sit ahead of the camera and a little to its right, so the craft leads the eye down and
+// stays in frame. The fourth is straight above the landing pad: the craft comes down from there, tail first.
 export const PATH_POINTS = [
-  [700, 2400, 4300],
-  [194, 626, 137],
-  [132, 419, -38],
-  [24, 40, -42],
-  [LANDING_PAD[0], 1, LANDING_PAD[1]],
+  [620, 2582, 4780],
+  [374, 1246, 260],
+  [117, 410, -17],
+  [24, 110, -50],
+  [LANDING_PAD[0], 1.4, LANDING_PAD[1]],
 ]
 
 // Cubic Hermite between b and c, with tangents mb and mc already scaled to the segment.
