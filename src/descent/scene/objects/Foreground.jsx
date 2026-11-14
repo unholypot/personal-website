@@ -5,45 +5,29 @@ import { createBuilder, rng } from '../build.js'
 import { createSceneMaterial } from '../sceneMaterial.js'
 import { addShadow, groundAt } from '../ground.js'
 
-const DARK = TONES.silhouette
+// Where the bootprints begin, in the plain between the closing camera and the astronaut's mountain.
+const START = [-9, 25]
 
-// Where the rover is parked, in the plain between the closing camera and the astronaut's mountain.
-const ROVER = [-9, 25]
-const TURN = 0.8
-
-// The ground right in front of the closing view, which would otherwise be bare plain: a rover that has
-// been left parked, a scatter of rocks with their shadows, and a line of bootprints (the astronaut's)
-// leading from the rover up to the foot of the mountain.
+// The ground right in front of the closing view, which would otherwise be bare plain: a scatter of
+// rocks with their shadows, and a line of bootprints (the astronaut's) up to the foot of the mountain.
 export default function Foreground() {
   const { solid, marks } = useMemo(() => {
     const b = createBuilder()
     const decal = createBuilder()
     const rand = rng(515)
-    const [rx, rz] = ROVER
-
-    // the rover: a body and cab on six wheels, a mast, a dish and an orange panel
-    const at = (x, z, y) => [rx + x * Math.cos(TURN) + z * Math.sin(TURN), y, rz - x * Math.sin(TURN) + z * Math.cos(TURN)]
-    b.box(at(0, 0, 1.55), [4.6, 1.1, 2.5], TONES.craft, TURN)
-    b.box(at(-0.3, 0, 2.55), [2.1, 0.95, 1.9], TONES.station, TURN)
-    b.box(at(-0.3, 0, 2.58), [0.2, 0.55, 1.5], DARK, TURN) // the windscreen strip, facing the front... of the cab
-    for (const x of [-1.7, 0, 1.7])
-      for (const z of [-1.4, 1.4]) b.box(at(x, z, 0.7), [1.2, 1.2, 0.55], DARK, TURN)
-    b.box(at(1.5, 0, 3.9), [0.15, 2.6, 0.15], DARK, TURN)
-    b.lathe([[0, 0.2], [0.5, 0.8], [0.7, 1.0]], 8, TONES.station, at(-1.6, 0.4, 3.0))
-    b.box(at(-1.8, -0.2, 2.2), [1.0, 1.4, 0.12], TONES.payload, TURN)
-    addShadow(decal, rx, rz, 2.2, 2.4, SHADE, 0.2)
+    const [rx, rz] = START
 
     // rocks, the nearer ones the bigger, in the open ground in front of the mountain
     for (let i = 0; i < 16; i++) {
       const x = -30 + rand() * 34
       const z = 15 + rand() * 24
-      if (Math.hypot(x - rx, z - rz) < 4.5 || Math.hypot(x - RIDGE[0], z - RIDGE[2]) < 12) continue
+      if (Math.hypot(x - rx, z - rz) < 2.5 || Math.hypot(x - RIDGE[0], z - RIDGE[2]) < 12) continue
       const s = 0.35 + Math.pow(rand(), 1.6) * 1.5
       b.rock([x, groundAt(x, z) + s * 0.3, z], s, TONES.rock, { seed: 600 + i, squash: 0.6 + rand() * 0.25, turn: [rand() * 3, rand() * 3, 0] })
       addShadow(decal, x, z, s * 0.8, s * 0.7, SHADE, 0.2)
     }
 
-    // bootprints, left and right in turn, from beside the rover to the foot of the mountain
+    // bootprints, left and right in turn, to the foot of the mountain
     const from = [rx - 3, rz - 2]
     const to = [RIDGE[0] + 3, RIDGE[2] + 9]
     const steps = 13
