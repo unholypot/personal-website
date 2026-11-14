@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { BufferGeometry, Euler, Float32BufferAttribute, Vector3 } from 'three'
 import { moonPositions } from '../moonBody.js'
 import { GIANT } from '../layout.js'
-import { SATELLITES } from '../satelliteLayout.js'
+import { RING_INNER_UNSCALED, RING_OUTER_UNSCALED, RING_SCALE, SATELLITES } from '../satelliteLayout.js'
 import { PALETTE, mix, rgb } from '../palette.js'
 import { motion } from '../sceneMaterial.js'
 import { createStippleMaterial } from '../shaders/stipple.js'
@@ -18,7 +18,13 @@ export default function GiantPlanet() {
   const inner = useRef(null)
   const outer = useRef(null)
   // Less dither, and the shadow edge slid round to the dark side, so more of the body is in the light.
-  const body = useMemo(() => createStippleMaterial({ lit: PALETTE.orange, shadow: PALETTE.navy, cell: 3, spread: 0.08, lift: 0.2, stripe: STRIPE, axis: AXIS }), [])
+  const body = useMemo(() => createStippleMaterial({ lit: PALETTE.orange, shadow: PALETTE.navy, cell: 3, spread: 0.08,
+        lift: 0.2,
+        stripe: STRIPE,
+        axis: AXIS,
+        // the rings shade the globe below them, as the globe shades the rings
+        ring: { axis: AXIS, inner: (RING_INNER_UNSCALED * RING_SCALE) / GIANT.radius, outer: (RING_OUTER_UNSCALED * RING_SCALE) / GIANT.radius },
+      }), [])
   const moon = useMemo(() => createStippleMaterial({ lit: PALETTE.cream, shadow: PALETTE.navy, cell: 2, spread: 0.12, lift: 0.05, mid: 0.42, midEdge: 0.38 }), [])
   // Faceted, cratered moons, each its own pattern of craters.
   const geometries = useMemo(
@@ -32,6 +38,7 @@ export default function GiantPlanet() {
       }),
     [],
   )
+  const place = useMemo(() => new Vector3(), [])
   const spinA = useRef(null)
   const spinB = useRef(null)
 
@@ -44,6 +51,13 @@ export default function GiantPlanet() {
     // each moon turns on its own axis too, so its craters roll through the light
     if (spinA.current) spinA.current.rotation.y += dt * 0.12
     if (spinB.current) spinB.current.rotation.y -= dt * 0.08
+    // tell the planet where the moons are, so it can show their shadows when one crosses its face
+    ;[spinA, spinB].forEach((ref, i) => {
+      if (!ref.current) return
+      ref.current.getWorldPosition(place)
+      const r = SATELLITES[i].radius / GIANT.radius
+      body.uniforms.uMoons.value[i].set((place.x - GIANT.center[0]) / GIANT.radius, (place.y - GIANT.center[1]) / GIANT.radius, (place.z - GIANT.center[2]) / GIANT.radius, r)
+    })
   })
 
   return (

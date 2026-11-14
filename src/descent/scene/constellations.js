@@ -79,6 +79,7 @@ export function buildConstellations(aspect = OPENING_ASPECT) {
     const radius = Math.max(...stars.map((s) => angleBetween(s, centre)))
     return {
       id: skill.id,
+      chart: skill.constellation,
       name: chart.name,
       centre,
       stars,
@@ -128,6 +129,25 @@ export function nearestFigure(screens, px, py, slack) {
       best = i
       bestDistance = d
     }
+  })
+  return best
+}
+
+// The star under a pointer, if any: { figure, star } by index, or null. `screens` is skyStore.screen,
+// each figure's screen entry holding its stars' places as `stars: [{ x, y }]`. Only figures that are
+// on screen count; the nearest star within `slack` pixels wins.
+export function nearestStar(screens, px, py, slack) {
+  let best = null
+  let bestDistance = slack
+  screens.forEach((s, figure) => {
+    if (!s.visible || !s.stars) return
+    s.stars.forEach((p, star) => {
+      const d = Math.hypot(p.x - px, p.y - py)
+      if (d <= bestDistance) {
+        bestDistance = d
+        best = { figure, star }
+      }
+    })
   })
   return best
 }

@@ -1,7 +1,7 @@
 // Shared drawing for everything painted on the far sky. Each thing is a list of directions
 // with a colour, a brightness and a size; it travels with the camera so it never gets nearer,
 // and it is always drawn behind the planets and the moon.
-import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, ShaderMaterial, Vector3 } from 'three'
+import { AdditiveBlending, BufferGeometry, DoubleSide, Float32BufferAttribute, ShaderMaterial, Vector3 } from 'three'
 import { shared } from './sceneMaterial.js'
 
 const VERT = /* glsl */ `
@@ -13,10 +13,13 @@ uniform vec3 uShift;
 attribute vec3 color;
 attribute float aAlpha;
 attribute float aSize;
+attribute float aSide;
 varying vec3 vColor;
 varying float vAlpha;
+varying float vSide;
 void main() {
   vColor = color;
+  vSide = aSide;
   // every star shimmers at its own rate and phase, worked out from where it is
   float h = fract(sin(dot(position, vec3(12.9898, 78.233, 37.719))) * 43758.5453);
   vAlpha = aAlpha * (1.0 + uTwinkle * sin(uTime * (1.2 + h * 2.6) + h * 40.0));
@@ -30,11 +33,15 @@ void main() {
 const FRAG = /* glsl */ `
 uniform float uStrength;
 uniform float uRound;
+uniform float uRibbon;
 varying vec3 vColor;
 varying float vAlpha;
+varying float vSide;
 void main() {
   float a = vAlpha * uStrength;
   if (uRound > 0.5) a *= 1.0 - smoothstep(0.5, 1.0, length(gl_PointCoord - 0.5) * 2.0);
+  // ribbons fade softly toward both edges, which is what makes the line clean and not stepped
+  if (uRibbon > 0.5) a *= 1.0 - smoothstep(0.15, 1.0, abs(vSide));
   if (a < 0.004) discard;
   gl_FragColor = vec4(vColor, a);
 }
@@ -43,19 +50,21 @@ void main() {
 // Round points when `round` is true (stars); otherwise flat (lines and tails).
 // `uStrength` scales the brightness and `uScale` the size of points; `uTwinkle` (0 to 1) is how much
 // each star shimmers, and `uShift` (a direction offset) moves the set to give it its own parallax.
-export const backdropMaterial = (round) =>
+export const backdropMaterial = (round, ribbon = false) =>
   new ShaderMaterial({
     vertexShader: VERT,
     fragmentShader: FRAG,
     transparent: true,
     depthWrite: false,
     blending: AdditiveBlending,
+    side: DoubleSide,
     uniforms: {
       uDpr: shared.uDpr,
       uTime: shared.uTime,
       uScale: { value: 1 },
       uStrength: { value: 1 },
       uRound: { value: round ? 1 : 0 },
+      uRibbon: { value: ribbon ? 1 : 0 },
       uTwinkle: { value: 0 },
       uShift: { value: new Vector3() },
     },

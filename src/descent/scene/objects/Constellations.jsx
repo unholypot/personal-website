@@ -1,11 +1,13 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
+import { BufferGeometry, Float32BufferAttribute } from 'three'
 import { rng } from '../build.js'
 import { backdropMaterial, collect } from '../backdrop.js'
 import { PALETTE, mix, rgb } from '../palette.js'
 import { figures, skyStore } from '../skyStore.js'
 import { frame, offset } from '../skyMath.js'
-import { REVEAL_END, figureShift, revealAmount } from '../skyReveal.js'
+import { VERTICES_PER_SEGMENT, fillRibbons, ribbonSides } from '../skyLines.js'
+import { REVEAL_END, revealAmount, skyShift } from '../skyReveal.js'
 import { pointer } from '../../scroll/parallax.js'
 import { motion, shared } from '../sceneMaterial.js'
 
@@ -14,6 +16,10 @@ const cream = rgb(PALETTE.cream)
 const TINTS = { orange: mix(cream, rgb(PALETTE.orange), 0.55), blue: mix(cream, rgb(PALETTE.teal), 0.4) }
 const DUST_TINTS = [cream, cream, cream, mix(cream, rgb(PALETTE.teal), 0.5), mix(cream, rgb(PALETTE.mustard), 0.5)]
 
+// How bright the lines are at rest (they are meant to be only just there) and how wide (half, in radians).
+const LINE_ALPHA = 0.13
+const LINE_HALF_WIDTH = 0.0009
+
 // Each figure is its own set of four things, so that one can light up on its own: the stars, the
 // thin lines joining them, a soft halo behind each star that only shows when it is lit, and a
 // scatter of faint stars round it, so it is picked out of a crowd and not drawn on a blank page.
@@ -21,17 +27,22 @@ const DUST_TINTS = [cream, cream, cream, mix(cream, rgb(PALETTE.teal), 0.5), mix
 const items = figures.map((f, index) => {
   const stars = collect()
   const halo = collect()
-  const lines = collect()
   const dust = collect()
   f.stars.forEach((p, i) => {
     const color = TINTS[f.tints[i]] ?? cream
     stars.add(p, color, 0.95, f.sizes[i])
     halo.add(p, color, 0.22, f.sizes[i] * 4.5)
   })
-  for (const [a, b] of f.links) {
-    lines.add(f.stars[a], cream, 0.3)
-    lines.add(f.stars[b], cream, 0.3)
-  }
+  // the lines joining the stars: very faint hairline ribbons that brighten when the figure is looked at
+  const segments = f.links.map(([a, b]) => [f.stars[a], f.stars[b]])
+  const vertexCount = segments.length * VERTICES_PER_SEGMENT
+  const ribbon = new BufferGeometry()
+  ribbon.setAttribute('position', new Float32BufferAttribute(new Float32Array(vertexCount * 3), 3))
+  ribbon.setAttribute('aSide', new Float32BufferAttribute(ribbonSides(segments.length), 1))
+  ribbon.setAttribute('color', new Float32BufferAttribute(Array.from({ length: vertexCount }, () => cream).flat(), 3))
+  ribbon.setAttribute('aAlpha', new Float32BufferAttribute(new Float32Array(vertexCount).fill(LINE_ALPHA), 1))
+  ribbon.setAttribute('aSize', new Float32BufferAttribute(new Float32Array(vertexCount).fill(1), 1))
+  fillRibbons(ribbon.attributes.position.array, segments, 0, LINE_HALF_WIDTH)
   // faint stars all round, thickest close in and thinning out
   const rand = rng(700 + index * 31)
   const axes = frame(f.centre)
@@ -42,7 +53,14 @@ const items = figures.map((f, index) => {
     dust.add(p, DUST_TINTS[Math.floor(rand() * DUST_TINTS.length)], 0.14 + rand() * 0.3, 1 + rand() * 1.5)
   }
   const make = (part, round) => ({ geometry: part.geometry(), material: backdropMaterial(round) })
-  return { stars: make(stars, true), halo: make(halo, true), lines: make(lines, false), dust: make(dust, true), linkCount: f.links.length }
+  return {
+    stars: make(stars, true),
+    halo: make(halo, true),
+    lines: { geometry: ribbon, material: backdropMaterial(false, true) },
+    dust: make(dust, true),
+    segments,
+    drawn: -1, // the reveal the ribbons were last built at
+  }
 })
 const lit = figures.map(() => 0)
 
@@ -67,15 +85,18 @@ export default function Constellations({ progress, ready = true }) {
       lit[i] += ((skyStore.active === i ? 1 : 0) - lit[i]) * (1 - Math.exp(-dt / 0.12))
       const reveal = revealAmount(sinceReady, i)
       const breathe = motion.on ? 1 + 0.1 * Math.sin(time * 1.4 + i * 1.7) : 1
-      const [sx, sy] = motion.on ? figureShift(i, time, pointer) : [0, 0]
-      for (const part of [item.stars, item.halo, item.lines, item.dust]) {
-        part.material.uniforms.uShift.value.set(e[0] * sx + e[4] * sy, e[1] * sx + e[5] * sy, e[2] * sx + e[6] * sy)
-      }
+      const [sx, sy, sz] = skyShift(i, time, pointer, e, motion.on)
+      for (const part of [item.stars, item.halo, item.lines, item.dust]) part.material.uniforms.uShift.value.set(sx, sy, sz)
       item.stars.material.uniforms.uStrength.value = pale * Math.min(1, reveal * 3)
       item.stars.material.uniforms.uScale.value = (1 + 0.6 * lit[i]) * breathe
       item.stars.material.uniforms.uTwinkle.value = motion.on ? 0.22 : 0
-      item.lines.material.uniforms.uStrength.value = pale * (1 + 1.8 * lit[i]) * Math.min(1, reveal * 4)
-      item.lines.geometry.setDrawRange(0, Math.ceil(item.linkCount * reveal) * 2)
+      item.lines.material.uniforms.uStrength.value = pale * (1 + 4.5 * lit[i]) * Math.min(1, reveal * 6)
+      // grow the ribbons while the figure is being drawn, and once more when it is complete
+      if (reveal !== item.drawn && (reveal < 1 || item.drawn < 1)) {
+        item.drawn = reveal
+        fillRibbons(item.lines.geometry.attributes.position.array, item.segments, reveal, LINE_HALF_WIDTH)
+        item.lines.geometry.attributes.position.needsUpdate = true
+      }
       item.halo.material.uniforms.uStrength.value = pale * lit[i]
       item.dust.material.uniforms.uStrength.value = pale * Math.min(1, reveal * 1.5) * (1 + 0.8 * lit[i])
       item.dust.material.uniforms.uTwinkle.value = motion.on ? 0.4 : 0
@@ -86,7 +107,7 @@ export default function Constellations({ progress, ready = true }) {
     <group key={figures[i].id}>
       <points geometry={item.dust.geometry} material={item.dust.material} frustumCulled={false} renderOrder={-5} />
       <points geometry={item.halo.geometry} material={item.halo.material} frustumCulled={false} renderOrder={-4} />
-      <lineSegments geometry={item.lines.geometry} material={item.lines.material} frustumCulled={false} renderOrder={-4} />
+      <mesh geometry={item.lines.geometry} material={item.lines.material} frustumCulled={false} renderOrder={-4} />
       <points geometry={item.stars.geometry} material={item.stars.material} frustumCulled={false} renderOrder={-4} />
     </group>
   ))

@@ -6,6 +6,7 @@
 export const CHARTS = {
   orion: {
     name: 'Orion',
+    of: 'Orionis', // the Latin genitive, for naming the stars that have only a Greek letter
     stars: [
       { name: 'Meissa', ra: 5.585, dec: 9.933, mag: 3.5 },
       { name: 'Betelgeuse', ra: 5.92, dec: 7.4, mag: 0.5, tint: 'orange' },
@@ -29,6 +30,7 @@ export const CHARTS = {
   },
   scorpius: {
     name: 'Scorpius',
+    of: 'Scorpii', // the Latin genitive, for naming the stars that have only a Greek letter
     stars: [
       { name: 'Pi', ra: 15.982, dec: -26.1, mag: 2.9 },
       { name: 'Dschubba', ra: 16.005, dec: -22.617, mag: 2.3 },
@@ -65,6 +67,7 @@ export const CHARTS = {
   },
   crux: {
     name: 'The Southern Cross',
+    of: 'Crucis', // the Latin genitive, for naming the stars that have only a Greek letter
     stars: [
       { name: 'Acrux', ra: 12.443, dec: -63.1, mag: 0.8, tint: 'blue' },
       { name: 'Mimosa', ra: 12.795, dec: -59.683, mag: 1.3, tint: 'blue' },
@@ -79,6 +82,7 @@ export const CHARTS = {
   },
   'ursa-major': {
     name: 'The Big Dipper',
+    of: 'Ursae Majoris', // the Latin genitive, for naming the stars that have only a Greek letter
     stars: [
       { name: 'Dubhe', ra: 11.062, dec: 61.75, mag: 1.8, tint: 'orange' },
       { name: 'Merak', ra: 11.03, dec: 56.383, mag: 2.3 },
@@ -100,6 +104,7 @@ export const CHARTS = {
   },
   cassiopeia: {
     name: 'Cassiopeia',
+    of: 'Cassiopeiae', // the Latin genitive, for naming the stars that have only a Greek letter
     stars: [
       { name: 'Caph', ra: 0.153, dec: 59.15, mag: 2.3 },
       { name: 'Schedar', ra: 0.675, dec: 56.533, mag: 2.2, tint: 'orange' },

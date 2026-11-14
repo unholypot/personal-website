@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { SKILLS } from '../../content/skills.js'
-import { canExplore, nearestFigure } from '../scene/constellations.js'
+import { canExplore, nearestFigure, nearestStar } from '../scene/constellations.js'
+import { starInfo } from '../content/starInfo.js'
 import { figures, skyStore } from '../scene/skyStore.js'
 
 // How far outside a figure's own edge the pointer still counts as being on it.
 const SLACK = 34
+// How close the pointer must be to a single star for it to be named.
+const STAR_SLACK = 13
 
 // Lets the constellations be explored. A mouse hovers over one and a finger taps it (a tap, or a
 // click, pins it until the next tap); the one in focus lights up in the sky and a label names
@@ -12,7 +15,10 @@ const SLACK = 34
 // Decorative for assistive technology: the same text is in the skill list.
 export default function SkyLabels({ progress }) {
   const [shown, setShown] = useState(-1) // which skill's words are in the label
+  const [star, setStar] = useState(null) // the star being named: { figure, star }
   const label = useRef(null)
+  const tip = useRef(null)
+  const ring = useRef(null)
   const hint = useRef(null)
 
   useEffect(() => {
@@ -73,6 +79,26 @@ export default function SkyLabels({ progress }) {
         if (i !== skyStore.active) setActive(i)
       }
 
+      // a single star under a mouse is named; fingers do not hover, so phones never see this
+      const found = open && hovering && pointer && skyStore.active >= 0 ? nearestStar(screens, pointer.x, pointer.y, STAR_SLACK) : null
+      const was = skyStore.star
+      if ((found?.figure ?? -1) !== (was?.figure ?? -1) || (found?.star ?? -1) !== (was?.star ?? -1)) {
+        skyStore.star = found
+        setStar(found)
+      }
+      if (found && tip.current && ring.current) {
+        const p = screens[found.figure].stars[found.star]
+        const el = tip.current
+        const margin = 12
+        let x = p.x + 16
+        if (x + el.offsetWidth + margin > window.innerWidth) x = p.x - 16 - el.offsetWidth
+        const y = Math.max(margin, Math.min(window.innerHeight - el.offsetHeight - margin, p.y + 14))
+        el.style.transform = `translate3d(${Math.round(x)}px, ${Math.round(y)}px, 0)`
+        ring.current.style.transform = `translate3d(${Math.round(p.x)}px, ${Math.round(p.y)}px, 0)`
+      }
+      tip.current?.classList.toggle('sky-star-on', !!found)
+      ring.current?.classList.toggle('sky-star-on', !!found)
+
       const el = label.current
       const a = skyStore.active
       if (el) {
@@ -87,7 +113,8 @@ export default function SkyLabels({ progress }) {
           const y = Math.max(margin, Math.min(window.innerHeight - el.offsetHeight - margin, s.y - 20))
           el.style.transform = `translate3d(${Math.round(x)}px, ${Math.round(y)}px, 0)`
         }
-        el.classList.toggle('sky-label-on', a >= 0)
+        // while one star is being named, its own card takes over from the figure's
+        el.classList.toggle('sky-label-on', a >= 0 && !found)
       }
       if (hint.current) hint.current.classList.toggle('sky-hint-gone', skyStore.discovered || !open)
       document.documentElement.style.cursor = a >= 0 ? 'pointer' : ''
@@ -106,10 +133,12 @@ export default function SkyLabels({ progress }) {
       window.removeEventListener('keydown', onKey)
       document.documentElement.style.cursor = ''
       skyStore.active = -1
+      skyStore.star = null
     }
   }, [progress])
 
   const skill = SKILLS[shown]
+  const info = star ? starInfo(figures[star.figure].chart, star.star) : null
 
   return (
     <>
@@ -125,6 +154,18 @@ export default function SkyLabels({ progress }) {
               <p className="sky-label-tagline">{skill.tagline}</p>
               <p className="sky-label-items">{skill.items.join(', ')}</p>
             </div>
+          </>
+        )}
+      </aside>
+      <span className="sky-star-ring" ref={ring} aria-hidden="true" />
+      <aside className="sky-star" ref={tip} aria-hidden="true">
+        {info && (
+          <>
+            <p className="sky-star-name">{info.name}</p>
+            <p className="sky-star-of">
+              In {info.constellation}, standing for my {SKILLS[star.figure].name.toLowerCase()}
+            </p>
+            {info.note && <p className="sky-star-note">{info.note}</p>}
           </>
         )}
       </aside>

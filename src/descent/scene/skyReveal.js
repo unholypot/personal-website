@@ -31,3 +31,11 @@ export function figureShift(index, time, pointer) {
   const a = time * (0.11 + index * 0.017) + index * 1.9
   return [Math.cos(a) * DRIFT + pointer.x * lean, Math.sin(a * 0.8) * DRIFT * 0.7 - pointer.y * lean * 0.6]
 }
+
+// The same shift as a direction offset in the world: `e` is the camera's world matrix (column-major),
+// whose first two columns are the screen's right and up. Zero when motion is off.
+export function skyShift(index, time, pointer, e, motionOn) {
+  if (!motionOn) return [0, 0, 0]
+  const [sx, sy] = figureShift(index, time, pointer)
+  return [e[0] * sx + e[4] * sy, e[1] * sx + e[5] * sy, e[2] * sx + e[6] * sy]
+}

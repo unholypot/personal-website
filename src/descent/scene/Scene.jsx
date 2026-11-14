@@ -14,6 +14,8 @@ import AsteroidBelt from './objects/AsteroidBelt.jsx'
 import SkyDetails from './objects/SkyDetails.jsx'
 import DeepSky from './objects/DeepSky.jsx'
 import Constellations from './objects/Constellations.jsx'
+import DistantShip from './objects/DistantShip.jsx'
+import ForegroundDust from './objects/ForegroundDust.jsx'
 import GiantPlanet from './objects/GiantPlanet.jsx'
 import Rings from './objects/Rings.jsx'
 import Moon from './objects/Moon.jsx'
@@ -68,7 +70,7 @@ export default function Scene({ progress, ready, onWarm }) {
       camera.updateProjectionMatrix()
     }
     // where each constellation is on the screen now, for the page's hover and tap
-    updateScreens(camera, size.width, size.height)
+    updateScreens(camera, size.width, size.height, shared.uTime.value)
 
     const sky = skyColor(p)
     shared.uSky.value.set(sky[0], sky[1], sky[2])
@@ -103,6 +105,7 @@ export default function Scene({ progress, ready, onWarm }) {
       <Moon />
       <Atmosphere />
       <Station />
+      <DistantShip />
       <OrbitalRocks />
       <CloudBands />
       <Surface />
@@ -113,6 +116,7 @@ export default function Scene({ progress, ready, onWarm }) {
       <Astronaut />
       <TrailRibbon progress={progress} />
       <Craft progress={progress} />
+      <ForegroundDust progress={progress} />
     </>
   )
 }
