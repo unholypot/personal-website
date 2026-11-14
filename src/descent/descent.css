@@ -17,6 +17,17 @@ body {
   color: var(--cream);
 }
 
+/* Touch has no hover and no click highlight: no blue flash over the page when it is tapped, and no
+   wait for a double-tap. Links and buttons keep their own pressed and focus states. */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+}
+
 /* The scene sits fixed behind the page. lvh, so a phone's toolbar sliding away never resizes it. */
 .stage {
   position: fixed;
@@ -24,6 +35,7 @@ body {
   width: 100%;
   height: 100vh;
   height: 100lvh;
+  will-change: transform;
   pointer-events: none;
   /* hidden until it has drawn a few steady frames, so the page never opens on a stutter */
   opacity: 0;
@@ -54,7 +66,9 @@ html.descent-snap .track-stop {
 /* ---------- Opening: the name alone while the scene warms up ---------- */
 .opening {
   position: fixed;
-  inset: 0;
+  inset: 0 0 auto 0;
+  height: 100vh;
+  height: 100lvh;
   z-index: 5;
   display: grid;
   place-items: center;
@@ -77,6 +91,7 @@ html.descent-snap .track-stop {
 /* ---------- No scene: the captions as a plain page ---------- */
 .no-gl .captions {
   position: static;
+  height: auto;
   pointer-events: auto;
   padding: calc(var(--edge) + var(--gutter));
   display: grid;
@@ -88,11 +103,18 @@ html.descent-snap .track-stop {
 }
 
 /* ---------- Captions: set like the lettering at the foot of a travel poster ---------- */
+/* Every full-screen layer is sized once and never follows a phone's toolbar as it slides away, or the
+   frame would stall for a moment during the first scroll and then snap. The paper and the scrim are as
+   tall as the scene (the large viewport); the lettering is set against the small one, so it is never
+   under the toolbar. Each is its own compositor layer, so scrolling never repaints them. */
 .captions {
   position: fixed;
-  inset: 0;
+  inset: 0 0 auto 0;
+  height: 100vh;
+  height: 100svh;
   z-index: 2;
   pointer-events: none;
+  will-change: transform;
 }
 
 .caption {
@@ -486,17 +508,23 @@ html.descent-snap .track-stop {
 /* ---------- The paper: border, darkened corners, grain ---------- */
 .poster-frame {
   position: fixed;
-  inset: 0;
+  inset: 0 0 auto 0;
+  height: 100vh;
+  height: 100lvh;
   z-index: 3;
   pointer-events: none;
   overflow: hidden;
+  will-change: transform;
 }
 
 /* A soft darkening under the lettering (above the scene, below the captions), so cream titles
    hold against mustard ground and orange planet. */
 .scrim {
   position: fixed;
-  inset: 0;
+  inset: 0 0 auto 0;
+  height: 100vh;
+  height: 100lvh;
+  will-change: transform;
   z-index: 1;
   pointer-events: none;
   background: linear-gradient(to top, rgba(11, 18, 32, 0.6) 0%, rgba(11, 18, 32, 0.28) 24%, transparent 46%);

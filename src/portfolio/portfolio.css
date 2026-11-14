@@ -40,11 +40,16 @@
 
 * {
   box-sizing: border-box;
+  /* no blue flash over what is tapped: touch has no hover, and the pressed and focus states are our own */
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 4.5rem;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  overflow-x: clip;
 }
 
 body {
@@ -168,10 +173,68 @@ a:hover {
   text-underline-offset: 0.22em;
 }
 
+/* Phones: the moon and the two small controls on one line, the four sections spread evenly under them.
+   The bar scrolls away with the page, so it never covers what is being read. */
 @media (max-width: 640px) {
+  .bar {
+    position: static;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'moon end'
+      'nav nav';
+    align-items: center;
+    gap: 0.6rem 1rem;
+    padding: 0.7rem var(--gutter) 0.6rem;
+  }
+
+  .bar-moon {
+    grid-area: moon;
+  }
+
+  .moon-badge {
+    width: 38px !important;
+    height: 38px !important;
+  }
+
   .bar-end {
+    grid-area: end;
+    justify-self: end;
     margin-left: 0;
-    width: 100%;
+    width: auto;
+    gap: 0.3rem 1.2rem;
+    justify-content: flex-end;
+  }
+
+  .bar nav {
+    grid-area: nav;
+    justify-content: space-between;
+    gap: 0;
+    padding-top: 0.55rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .bar a,
+  .bar button {
+    font-size: 0.98rem;
+  }
+
+  /* the button first and wide, then the links spread evenly under it */
+  .intro-links {
+    justify-content: space-between;
+    gap: 1rem 0.5rem;
+  }
+
+  .intro-links .button {
+    flex: 1 0 100%;
+    text-align: center;
+    margin-bottom: 0.2rem;
+  }
+
+  .block .contact-email {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
 }
 
@@ -464,7 +527,7 @@ summary:hover .project-title {
   align-items: center;
   gap: 0.9rem;
   margin: 0.6rem 0 0;
-  font-size: 1.35rem;
+  font-size: clamp(1.05rem, 4.8vw, 1.35rem);
   overflow-wrap: anywhere;
 }
 
