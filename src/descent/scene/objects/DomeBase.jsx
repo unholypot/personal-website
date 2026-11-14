@@ -177,22 +177,6 @@ export default function DomeBase() {
       b.box([x, stacked ? 2.4 + 0.95 : s2 / 2, z], [s2, s2, s2], k % 2 ? CRATE_ALT : CRATE, turn)
     })
 
-    // a rover parked at the start of the wheel ruts
-    {
-      const [rx, rz] = [7, 27]
-      const turn = -0.35
-      b.box([rx, 1.35, rz], [4.4, 1.1, 2.4], TONES.craft, turn)
-      b.box([rx - Math.cos(turn) * 0.3, 2.3, rz + Math.sin(turn) * 0.3], [2, 0.9, 1.8], TONES.station, turn)
-      for (const sx of [-1.6, 0, 1.6])
-        for (const sz of [-1.35, 1.35]) {
-          const px = rx + sx * Math.cos(turn) + sz * Math.sin(turn)
-          const pz = rz - sx * Math.sin(turn) + sz * Math.cos(turn)
-          b.box([px, 0.65, pz], [1.1, 1.1, 0.5], DARK, turn)
-        }
-      b.box([rx + 1.4 * Math.cos(turn), 3.6, rz - 1.4 * Math.sin(turn)], [0.15, 2.2, 0.15], DARK)
-      b.box([rx - 1.6 * Math.cos(turn), 2.4, rz + 1.6 * Math.sin(turn)], [0.9, 1.3, 0.1], TONES.payload, turn)
-    }
-
     // lamps round the perimeter road, except where the pad and the ruts cross it
     const hubX = 1
     const hubZ = 7
