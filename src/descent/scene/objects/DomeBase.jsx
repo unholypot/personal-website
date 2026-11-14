@@ -15,6 +15,7 @@ const DOMES = [
   [11, 12, 6],
   [-5, 26, 6],
   [-11, -13, 7],
+  [-31, -4, 4], // a small utility pod
 ]
 // The domes are cream, except the greenhouse (the third), which is glassier.
 const GREENHOUSE = [mix(rgb(PALETTE.teal), rgb(PALETTE.cream), 0.55), rgb(PALETTE.teal), rgb(PALETTE.navy)]
@@ -121,6 +122,30 @@ export default function DomeBase() {
     b.box([-1, 11, -22], [0.4, 22, 0.4], DARK)
     b.box([-1, 22.4, -22], [1, 0.8, 1], TONES.payload)
 
+    // a tunnel from the second dome out to the solar field, with a lit window along it
+    {
+      const [tx, tz] = [-27.5, 15]
+      const len = Math.hypot(tx + 21, tz - 8)
+      b.box([(tx - 21) / 2, 0.9, (tz + 8) / 2], [len, 1.6, 1.5], TONES.station, -Math.atan2(tz - 8, tx + 21))
+    }
+    // a bank of masts beside the comms dish, each with a small red tip
+    for (const [mx, mz, mh] of [[10.5, -19, 7], [13, -17.5, 5.5], [15, -20, 6.5]]) {
+      b.box([mx, mh / 2, mz], [0.22, mh, 0.22], DARK)
+      b.box([mx, mh + 0.2, mz], [0.5, 0.4, 0.5], BEACON)
+    }
+    // the radar tower: its bar (the turning part) is its own mesh, below
+    b.box([-26, 4.4, -8], [0.7, 8.8, 0.7], DARK)
+    b.box([-26, 9, -8], [1.6, 0.6, 1.6], TONES.station)
+    // a ring of lights round the landing pad, blinking in turn (the pad is at 28, 20 from the base)
+    for (let k = 0; k < 14; k++) {
+      const a = (k / 14) * Math.PI * 2
+      ;(k % 2 ? flashA : flashB).box([28 + Math.cos(a) * 10.9, 0.5, 20 + Math.sin(a) * 10.9], [0.5, 0.5, 0.5], k % 4 < 2 ? BEACON : LIT)
+    }
+    // pipes between the tanks and out to the pad
+    b.box([28.4, 0.5, 6], [10, 0.5, 0.5], DARK)
+    b.box([28.4, 0.45, 8.6], [0.5, 0.5, 5.2], DARK)
+    b.box([28.4, 1.1, 10.4], [1.6, 1.1, 1.6], TONES.station)
+
     // three tanks in a row, with pipes to the greenhouse
     for (let k = 0; k < 3; k++) {
       const x = 24 + k * 4.4
@@ -210,6 +235,11 @@ export default function DomeBase() {
     addPatch(b, px, pz, () => 5, PALE, 0.17, { inner: 4.2, segments: 20 })
     addPatch(b, px, pz, () => 1.4, PALE, 0.17, { segments: 10 })
     track(b, [[px - 9, pz - 3], [px - 12, pz - 7], [bx + 13, bz + 8]], 1.8, WORN)
+    // paths worn between the buildings: hub to the tanks, greenhouse to the pad, tunnel to the solar field, hub to the pod
+    track(b, [[bx + 12, bz + 3], [bx + 22, bz + 5], [bx + 26, bz + 8]], 1.2, WORN)
+    track(b, [[bx - 21, bz + 16], [bx - 25, bz + 19], [bx - 29, bz + 23]], 1.2, WORN)
+    track(b, [[bx - 11, bz + 1], [bx - 22, bz - 2], [bx - 28, bz - 3]], 1.2, WORN)
+    track(b, [[bx + 7, bz + 15], [bx + 3, bz + 21], [bx - 1, bz + 27]], 1.2, WORN)
 
     // wheel ruts from the base out to the foot of the mountain
     const route = [
@@ -232,12 +262,21 @@ export default function DomeBase() {
   const lampsA = useRef(null)
   const lampsB = useRef(null)
   const windows = useRef(null)
+  const radar = useRef(null)
+  const radarBar = useMemo(() => {
+    const b = createBuilder()
+    b.box([0, 0, 0], [9, 2.4, 0.5], TONES.station)
+    b.box([0, 1.5, 0], [0.4, 1.4, 0.4], DARK)
+    b.box([4.4, 0, 0], [0.5, 1.6, 0.8], TONES.payload)
+    return b.toGeometry()
+  }, [])
 
   // the lamps round the base blink in turn, slowly; the windows breathe a little
   useFrame(() => {
     const t = shared.uTime.value
     if (lampsA.current) lampsA.current.visible = !motion.on || Math.sin(t * 1.5) > -0.2
     if (lampsB.current) lampsB.current.visible = !motion.on || Math.sin(t * 1.5 + Math.PI) > -0.2
+    if (radar.current && motion.on) radar.current.rotation.y += 0.012
     if (windows.current) windows.current.material.opacity = motion.on ? 0.17 + 0.05 * Math.sin(t * 0.7) : 0.2
   })
   const decalMaterial = useMemo(() => createSceneMaterial({ fogNear: 2500, fogFar: 14000, doubleSided: true, decal: true }), [])
@@ -245,6 +284,7 @@ export default function DomeBase() {
     <>
       <mesh geometry={geometry} material={material} position={BASE} />
       <mesh ref={windows} geometry={halo} material={glowMaterial} position={BASE} />
+      <mesh ref={radar} geometry={radarBar} material={material} position={[BASE[0] - 26, 10.1, BASE[2] - 8]} />
       <mesh ref={lampsA} geometry={blinkA} material={material} position={BASE} />
       <mesh ref={lampsB} geometry={blinkB} material={material} position={BASE} />
       <mesh geometry={markings} material={decalMaterial} renderOrder={3} />

@@ -198,6 +198,17 @@ export default function Surface() {
       craters.push([x, z, r])
       return true
     }
+    // small craters scattered in the ground right round the base, which the general rule keeps clear
+    for (let i = 0, made = 0; i < 80 && made < 16; i++) {
+      const a = rand() * Math.PI * 2
+      const d = 50 + rand() * 30
+      const x = BASE[0] + Math.cos(a) * d
+      const z = BASE[2] + Math.sin(a) * d
+      const r = 2 + rand() * 3.4
+      if (near(x, z, LANDING_PAD, 24 + r) || near(x, z, [RIDGE[0], RIDGE[2]], 22 + r) || !fits(x, z, r * 1.7) || !free(x, z, r)) continue
+      craters.push([x, z, r])
+      made++
+    }
     const big = []
     for (let i = 0; i < 24 && big.length < 9; i++) {
       const [x, z] = spot(480, REACH - 80)
