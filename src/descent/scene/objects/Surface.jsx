@@ -12,6 +12,9 @@ const BRIGHT = mix(mustard, rgb(PALETTE.cream), 0.24) // pale uplands
 const BLOT = mix(mustard, rgb(PALETTE.orange), 0.3) // broad warm lowlands
 const DUSK = mix(mustard, navy, 0.14) // faint darker ground and long cracks
 const SPECK = mix(mustard, navy, 0.3)
+const MARE = mix(mustard, navy, 0.2) // broad dark plains of old lava
+const CHANNEL = mix(mustard, navy, 0.42) // the floor of a rille
+const LEE = mix(mustard, rgb(PALETTE.cream), 0.4) // the pale side of a ripple, facing the sun
 
 // How far out from the landing site the markings go. The moon's edge is at 1500.
 const REACH = 1300
@@ -54,6 +57,81 @@ function crack(b, x, z, rand) {
     if (!crossesApron && quad.every(([qx, qz]) => fits(qx, qz, 0) && !busy(qx, qz, 6)))
       b.flat(quad.map(([qx, qz]) => [qx, groundAt(qx, qz) + lift(qx, qz), qz]), [SPECK])
     at = next
+  }
+}
+
+// A strip lying on the ground along a line of [x, z] points, `half` wide each side, in one colour.
+function strip(b, points, half, color) {
+  for (let i = 0; i < points.length - 1; i++) {
+    const [ax, az] = points[i]
+    const [bx, bz] = points[i + 1]
+    const len = Math.hypot(bx - ax, bz - az) || 1
+    const nx = (-(bz - az) / len) * half
+    const nz = ((bx - ax) / len) * half
+    const quad = [
+      [ax - nx, az - nz],
+      [bx - nx, bz - nz],
+      [bx + nx, bz + nz],
+      [ax + nx, az + nz],
+    ]
+    const radii = quad.map(([qx, qz]) => Math.hypot(qx, qz))
+    if (Math.min(...radii) < PLAIN_BLEND_RADIUS && Math.max(...radii) > PLAIN_RADIUS) continue
+    if (quad.every(([qx, qz]) => fits(qx, qz, 0) && !busy(qx, qz, 6))) b.flat(quad.map(([qx, qz]) => [qx, groundAt(qx, qz) + lift(qx, qz), qz]), [color])
+  }
+}
+
+// A rille: a long, shallow, winding channel with a pale lip along its sunward side.
+function rille(b, x, z, rand) {
+  let heading = rand() * Math.PI * 2
+  const points = [[x, z]]
+  const width = 1.6 + rand() * 1.6
+  for (let i = 0; i < 16; i++) {
+    heading += (rand() - 0.5) * 0.55
+    const [px, pz] = points[points.length - 1]
+    points.push([px + Math.cos(heading) * 38, pz + Math.sin(heading) * 38])
+  }
+  strip(b, points, width, CHANNEL)
+  strip(b, points.map(([px, pz]) => [px - 0.7 * width, pz - 0.9 * width]), width * 0.28, LEE)
+}
+
+// Rippled dust: a set of fine parallel curved lines, dark with a pale edge, like wind-blown sand.
+function ripples(b, cx, cz, rand) {
+  const heading = rand() * Math.PI * 2
+  const along = [Math.cos(heading), Math.sin(heading)]
+  const across = [-along[1], along[0]]
+  const length = 26 + rand() * 34
+  const rows = 6 + Math.floor(rand() * 5)
+  const bend = 0.08 + rand() * 0.14
+  for (let r = 0; r < rows; r++) {
+    const offset = (r - rows / 2) * 3.4
+    const line = Array.from({ length: 7 }, (_, k) => {
+      const t = (k / 6 - 0.5) * length
+      const wobble = Math.sin(t * bend + r * 0.7) * 1.4
+      return [cx + along[0] * t + across[0] * (offset + wobble), cz + along[1] * t + across[1] * (offset + wobble)]
+    })
+    strip(b, line, 0.5, SPECK)
+    strip(b, line.map(([px, pz]) => [px + across[0] * 0.9, pz + across[1] * 0.9]), 0.28, LEE)
+  }
+}
+
+// Scree: little angular chips of rock lying in a patch, each a dark shard with a pale side.
+function scree(b, cx, cz, size, rand) {
+  for (let k = 0; k < 46; k++) {
+    const a = rand() * Math.PI * 2
+    const d = Math.sqrt(rand()) * size
+    const x = cx + Math.cos(a) * d
+    const z = cz + Math.sin(a) * d
+    const s = 1 + rand() * 2.4
+    if (!fits(x, z, s * 2) || busy(x, z, 0)) continue
+    const turn = rand() * Math.PI * 2
+    const corner = (m, scale) => [x + Math.cos(turn + m * 2.1) * s * scale, z + Math.sin(turn + m * 2.1) * s * scale]
+    const tri = [corner(0, 1), corner(1, 0.8), corner(2, 1.2)]
+    if (tri.some(([tx, tz]) => Math.min(Math.hypot(tx, tz) - PLAIN_RADIUS, 0) > -15 && Math.hypot(tx, tz) < PLAIN_RADIUS + 15)) continue
+    const radii = tri.map(([tx, tz]) => Math.hypot(tx, tz))
+    if (Math.min(...radii) < PLAIN_BLEND_RADIUS && Math.max(...radii) > PLAIN_RADIUS) continue
+    b.flat(tri.map(([tx, tz]) => [tx, groundAt(tx, tz) + lift(tx, tz), tz]), [CHANNEL])
+    const lit = tri.map(([tx, tz]) => [tx - s * 0.5, tz + s * 0.35])
+    b.flat(lit.map(([tx, tz]) => [tx, groundAt(tx, tz) + lift(tx, tz) + 0.01, tz]), [LEE])
   }
 }
 
@@ -105,6 +183,12 @@ export default function Surface() {
     }
 
     for (let i = 0; i < 16; i++) crack(b, ...spot(140, REACH - 100), rand)
+
+    // more to find from the air: dark plains of old lava, winding rilles, rippled dust and scree
+    for (let i = 0; i < 9; i++) blot(MARE, 520, REACH, 80, 170)
+    for (let i = 0; i < 5; i++) rille(b, ...spot(500, REACH - 560), rand)
+    for (let i = 0; i < 18; i++) ripples(b, ...spot(130, REACH - 60), rand)
+    for (let i = 0; i < 26; i++) scree(b, ...spot(110, REACH - 40), 28 + rand() * 40, rand)
 
     // Where every crater goes is settled first, so the dust streaks can be laid beneath them all.
     const craters = []

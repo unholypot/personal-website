@@ -1,8 +1,10 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
+import { useFrame } from '@react-three/fiber'
+import { AdditiveBlending, Color, MeshBasicMaterial } from 'three'
 import { BASE, LANDING_PAD, RIDGE } from '../layout.js'
 import { PALE, PALETTE, SHADE, TONES, WORN, mix, rgb } from '../palette.js'
 import { createBuilder, rng } from '../build.js'
-import { createSceneMaterial } from '../sceneMaterial.js'
+import { createSceneMaterial, motion, shared } from '../sceneMaterial.js'
 import { addPatch, addShadow, groundAt } from '../ground.js'
 
 // [x, z, radius], measured from BASE. The big dome is the hub; the rest are joined to it.
@@ -21,6 +23,9 @@ const CRATE = [rgb(PALETTE.cream), rgb(PALETTE.orange), rgb(PALETTE.navy)]
 const CRATE_ALT = [rgb(PALETTE.mustard), mix(rgb(PALETTE.mustard), rgb(PALETTE.navy), 0.35), rgb(PALETTE.navy)]
 const DARK = TONES.silhouette
 const BEACON = [rgb(PALETTE.orange), rgb(PALETTE.orange), rgb(PALETTE.orange)]
+// A lit window: the same warm yellow whichever way it faces.
+const WARM = mix(rgb(PALETTE.mustard), rgb(PALETTE.cream), 0.35)
+const LIT = [WARM, WARM, WARM]
 
 // Which way a thing on a dome's rim faces: turning a box by this makes its front look outward.
 const facing = (a) => Math.atan2(Math.cos(a), Math.sin(a))
@@ -62,8 +67,12 @@ const beside = (points, d) =>
 // The surface base: bubble habitats joined by low corridors (the thesis on bubbles, as a place),
 // with the marks a working base leaves on the ground round it.
 export default function DomeBase() {
-  const geometry = useMemo(() => {
+  const { geometry, halo, blinkA, blinkB } = useMemo(() => {
     const b = createBuilder()
+    // the glow round the lit windows, and the two sets of lamps that blink in turn
+    const glow = createBuilder()
+    const flashA = createBuilder()
+    const flashB = createBuilder()
     const rand = rng(63)
 
     // the domes, each on a low plinth, with a ring of windows
@@ -79,7 +88,11 @@ export default function DomeBase() {
         const h = r * (i === 2 ? 0.5 : 0.36)
         const rr = Math.sqrt(r * r - h * h) * 0.985
         const w = Math.max(1.1, r * 0.17)
-        b.box([x + Math.cos(a) * rr, 0.5 + h, z + Math.sin(a) * rr], [w, w * 0.62, 0.3], i === 2 ? TONES.dome : DARK, facing(a))
+        const at = [x + Math.cos(a) * rr, 0.5 + h, z + Math.sin(a) * rr]
+        // most windows are lit, the greenhouse's all of them; a few are dark, like a place people live in
+        const lit = i === 2 || (k + i) % 3 !== 0
+        b.box(at, [w, w * 0.62, 0.3], lit ? LIT : DARK, facing(a))
+        if (lit) glow.box(at, [w * 2.1, w * 1.5, 0.35], LIT, facing(a))
       }
       // a short mast on top
       b.box([x, 0.5 + r + 1.4, z], [0.25, 3, 0.25], DARK)
@@ -93,7 +106,8 @@ export default function DomeBase() {
 
     // the hub's airlock, a squat block with a dark door, and a flag beside it
     b.box([0, 1.8, 13.2], [4.4, 3.6, 3.4], TONES.station)
-    b.box([0, 1.4, 15], [2, 2.6, 0.3], DARK)
+    b.box([0, 1.4, 15], [2, 2.6, 0.3], LIT) // the airlock door, lit from inside
+    glow.box([0, 1.5, 15.1], [3.6, 3.6, 0.3], LIT)
     b.box([0, 3.8, 13.2], [4.8, 0.4, 3.8], TONES.craft)
     b.box([7.5, 2.8, 17], [0.2, 5.6, 0.2], DARK)
     b.box([8.4, 5, 17], [1.8, 1.1, 0.12], TONES.payload)
@@ -163,7 +177,7 @@ export default function DomeBase() {
       const lx = hubX + Math.cos(a) * 32.8
       const lz = hubZ + Math.sin(a) * 32.8
       b.box([lx, 1.6, lz], [0.25, 3.2, 0.25], DARK)
-      b.box([lx, 3.4, lz], [0.8, 0.6, 0.8], BEACON)
+      ;(k % 2 ? flashA : flashB).box([lx, 3.4, lz], [0.8, 0.6, 0.8], BEACON)
     }
 
     // loose rock scattered about the base
@@ -176,7 +190,7 @@ export default function DomeBase() {
       const s3 = 0.4 + rand() * 0.9
       b.rock([x, s3 * 0.4, z], s3, TONES.rock, { seed: 200 + i, squash: 0.65, turn: [rand() * 3, rand() * 3, 0] })
     }
-    return b.toGeometry()
+    return { geometry: b.toGeometry(), halo: glow.toGeometry(), blinkA: flashA.toGeometry(), blinkB: flashB.toGeometry() }
   }, [])
 
   // Ground markings, in world coordinates: a perimeter road, a landing pad, wheel ruts out to
@@ -211,10 +225,28 @@ export default function DomeBase() {
   }, [])
 
   const material = useMemo(() => createSceneMaterial({ fogNear: 400, fogFar: 3000 }), [])
+  const glowMaterial = useMemo(
+    () => new MeshBasicMaterial({ color: new Color(WARM[0], WARM[1], WARM[2]), transparent: true, opacity: 0.2, blending: AdditiveBlending, depthWrite: false }),
+    [],
+  )
+  const lampsA = useRef(null)
+  const lampsB = useRef(null)
+  const windows = useRef(null)
+
+  // the lamps round the base blink in turn, slowly; the windows breathe a little
+  useFrame(() => {
+    const t = shared.uTime.value
+    if (lampsA.current) lampsA.current.visible = !motion.on || Math.sin(t * 1.5) > -0.2
+    if (lampsB.current) lampsB.current.visible = !motion.on || Math.sin(t * 1.5 + Math.PI) > -0.2
+    if (windows.current) windows.current.material.opacity = motion.on ? 0.17 + 0.05 * Math.sin(t * 0.7) : 0.2
+  })
   const decalMaterial = useMemo(() => createSceneMaterial({ fogNear: 2500, fogFar: 14000, doubleSided: true, decal: true }), [])
   return (
     <>
       <mesh geometry={geometry} material={material} position={BASE} />
+      <mesh ref={windows} geometry={halo} material={glowMaterial} position={BASE} />
+      <mesh ref={lampsA} geometry={blinkA} material={material} position={BASE} />
+      <mesh ref={lampsB} geometry={blinkB} material={material} position={BASE} />
       <mesh geometry={markings} material={decalMaterial} renderOrder={3} />
     </>
   )

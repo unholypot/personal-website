@@ -1,8 +1,9 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
+import { useFrame } from '@react-three/fiber'
 import { RIDGE, RIDGE_TOP } from '../layout.js'
 import { TONES } from '../palette.js'
 import { createBuilder } from '../build.js'
-import { createSceneMaterial } from '../sceneMaterial.js'
+import { createSceneMaterial, motion, shared } from '../sceneMaterial.js'
 
 // A small astronaut on the summit, back to us, looking up at the giant: a pale suit with a
 // round helmet, a life-support pack and an aerial. Feet at local y = 0, facing local -z.
@@ -32,17 +33,24 @@ export default function Astronaut() {
     b.box([0, 1.6, 0.4], [0.4, 0.12, 0.22], pack)
     b.box([0, 1.3, 0.54], [0.34, 0.09, 0.03], TONES.payload)
     b.box([0.19, 1.86, 0.44], [0.03, 0.44, 0.03], dark)
-    b.box([0.19, 2.1, 0.44], [0.08, 0.08, 0.08], TONES.payload)
+    // (the aerial's tip is its own blinking light, below)
     return b.toGeometry()
   }, [])
+  const lamp = useMemo(() => {
+    const b = createBuilder()
+    b.box([0.19, 2.1, 0.44], [0.1, 0.1, 0.1], TONES.payload)
+    return b.toGeometry()
+  }, [])
+  const light = useRef(null)
+  // a small light on the aerial blinks, slowly, as a suit's would
+  useFrame(() => {
+    if (light.current) light.current.visible = !motion.on || Math.sin(shared.uTime.value * 2.4) > -0.25
+  })
   const material = useMemo(() => createSceneMaterial({ fogNear: 400, fogFar: 3000 }), [])
   return (
-    <mesh
-      geometry={geometry}
-      material={material}
-      position={[RIDGE[0], RIDGE_TOP, RIDGE[2]]}
-      rotation={[0, 0.25, 0]}
-      scale={1.3}
-    />
+    <group position={[RIDGE[0], RIDGE_TOP, RIDGE[2]]} rotation={[0, 0.25, 0]} scale={1.3}>
+      <mesh geometry={geometry} material={material} />
+      <mesh ref={light} geometry={lamp} material={material} />
+    </group>
   )
 }

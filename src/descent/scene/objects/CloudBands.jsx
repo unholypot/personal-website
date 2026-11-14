@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { BufferGeometry, Float32BufferAttribute, ShaderMaterial, Vector3 } from 'three'
 import { MOON } from '../layout.js'
-import { CLOUD_SPIN_SECONDS, CLOUD_TILT, cloudBanks } from '../clouds.js'
+import { CLOUD_SPIN_SECONDS, CLOUD_TILT, cloudBanks, cloudSpin } from '../clouds.js'
 import { PALETTE, mix, rgb } from '../palette.js'
 import { LIGHT, rng } from '../build.js'
 import { GRAIN_GLSL, motion, shared } from '../sceneMaterial.js'
@@ -113,9 +113,12 @@ function cloudMaterial() {
       uSky: shared.uSky,
       uTime: shared.uTime,
       uDpr: shared.uDpr,
+      uGone: { value: 0 }, // 0 whole, 1 gone: the clouds dissolve away as the descent ends, leaving the sky clear
       uLit: { value: new Vector3(...cream) },
       uMid: { value: new Vector3(...mix(cream, teal, 0.24)) },
       uShade: { value: new Vector3(...mix(cream, teal, 0.52)) },
+      uGlint: { value: new Vector3(...mix(cream, rgb(PALETTE.mustard), 0.2)) }, // the lit tops pick up the sun's warmth
+      uDeep: { value: new Vector3(...mix(teal, rgb(PALETTE.navy), 0.45)) }, // the undersides, in the moon's cool bounce
       uLightDir: { value: new Vector3(...LIGHT) },
     },
     vertexShader: /* glsl */ `
@@ -136,6 +139,9 @@ function cloudMaterial() {
       uniform vec3 uLit;
       uniform vec3 uMid;
       uniform vec3 uShade;
+      uniform float uGone;
+      uniform vec3 uGlint;
+      uniform vec3 uDeep;
       uniform vec3 uLightDir;
       varying vec3 vNormal;
       varying vec3 vView;
@@ -144,9 +150,17 @@ function cloudMaterial() {
         // A cloud the camera flies right up to breaks into flecks at the lens instead of slicing through it.
         float nearFade = smoothstep(8.0, 65.0, length(vView));
         if (hash(floor(gl_FragCoord.xy / uDpr)) > nearFade) discard;
+        if (hash(floor(gl_FragCoord.xy / uDpr) + 31.0) < uGone) discard;
         // Three flat tones, face by face: tops bright, sides toward the light paler, sides away shaded.
-        float facing = dot(normalize(vNormal), uLightDir);
+        vec3 n = normalize(vNormal);
+        float facing = dot(n, uLightDir);
         vec3 color = facing > 0.6 ? uLit : facing > 0.1 ? uMid : uShade;
+        // faces turned square to the sun blaze warm; faces turned away drop to a deep cool tone
+        if (facing > 0.9) color = uGlint;
+        if (facing < -0.35) color = uDeep;
+        // and a bright rim where an edge turns away from us, as light catches the lip of a slab
+        float rim = 1.0 - abs(dot(n, normalize(vView)));
+        color = mix(color, vec3(1.0, 0.97, 0.9), smoothstep(0.78, 0.96, rim) * smoothstep(-0.2, 0.5, facing) * 0.6);
         float fog = smoothstep(900.0, 6500.0, distance(vWorld, cameraPosition));
         color = mix(color, uSky, fog * 0.65);
         gl_FragColor = vec4(grain(color), 1.0);
@@ -158,15 +172,20 @@ function cloudMaterial() {
 // Low blocky cloud over the whole moon. The shell of cloud turns slowly about the moon's spin
 // axis, independent of scrolling, so the weather drifts right across the globe over a few
 // minutes. Rotation keeps every bank at its height above the moon.
-export default function CloudBands() {
+export default function CloudBands({ progress }) {
   const drift = useRef(null)
   const geometry = useMemo(() => cloudGeometry(), [])
   const material = useMemo(() => cloudMaterial(), [])
 
   useFrame((_, delta) => {
+    if (drift.current) {
+      const t = Math.min(1, Math.max(0, (progress.current - 0.84) / 0.12))
+      drift.current.material.uniforms.uGone.value = t * t * (3 - 2 * t)
+    }
     if (!drift.current || !motion.on) return
     // Cap elapsed time so returning to a backgrounded tab never causes a jump.
     drift.current.rotation.y = (drift.current.rotation.y + (Math.min(delta, 0.1) * Math.PI * 2) / CLOUD_SPIN_SECONDS) % (Math.PI * 2)
+    cloudSpin.angle = drift.current.rotation.y
   })
 
   return (

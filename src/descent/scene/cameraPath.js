@@ -14,7 +14,7 @@ export const KEYFRAMES = [
   { p: 0.75, position: [-30, 60, 130], target: [-85, 25, -265], fov: 55 },
   { p: 0.82, position: [-27, 50, 112], target: [-93, 43, -282], fov: 52 },
   { p: 0.9, position: [-14, 12, 62], target: [-97, 22, -329], fov: 46 },
-  { p: 1.0, position: [-12, 3, 44], target: [-334, 159, -890], fov: 36 },
+  { p: 1.0, position: [-12, 3, 44], target: [-334, 159, -890], fov: 45 },
 ]
 
 const K = (i) => KEYFRAMES[Math.max(0, Math.min(KEYFRAMES.length - 1, i))]
