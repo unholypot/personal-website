@@ -20,6 +20,10 @@ const DOMES = [
 // The domes are cream, except the greenhouse (the third), which is glassier.
 const GREENHOUSE = [mix(rgb(PALETTE.teal), rgb(PALETTE.cream), 0.55), rgb(PALETTE.teal), rgb(PALETTE.navy)]
 const PANEL = [mix(rgb(PALETTE.teal), rgb(PALETTE.cream), 0.3), rgb(PALETTE.teal), rgb(PALETTE.navy)]
+// a panel's cream frame, its two blues, and the bright glint across one corner
+const CELL_FRAME = [rgb(PALETTE.cream), mix(rgb(PALETTE.cream), rgb(PALETTE.navy), 0.2), mix(rgb(PALETTE.cream), rgb(PALETTE.navy), 0.5)]
+const PANEL_DEEP = [mix(rgb(PALETTE.teal), rgb(PALETTE.navy), 0.35), mix(rgb(PALETTE.teal), rgb(PALETTE.navy), 0.55), rgb(PALETTE.navy)]
+const GLINT = [mix(rgb(PALETTE.cream), rgb(PALETTE.teal), 0.12), mix(rgb(PALETTE.cream), rgb(PALETTE.teal), 0.3), mix(rgb(PALETTE.cream), rgb(PALETTE.teal), 0.5)]
 const CRATE = [rgb(PALETTE.cream), rgb(PALETTE.orange), rgb(PALETTE.navy)]
 const CRATE_ALT = [rgb(PALETTE.mustard), mix(rgb(PALETTE.mustard), rgb(PALETTE.navy), 0.35), rgb(PALETTE.navy)]
 const DARK = TONES.silhouette
@@ -153,22 +157,42 @@ export default function DomeBase() {
     }
     b.box([18.5, 0.45, 8.5], [10, 0.5, 0.5], TONES.silhouette, -0.28)
 
-    // a field of solar panels: tilted rows, facing the sun, on short legs
+    // a field of solar panels: tilted rows facing the sun. Each is a cream frame holding a grid of cells
+    // (4 by 3, two blues in a check), with a bright glint across one corner, a junction box on its back,
+    // and a pair of A-frame legs; a rail runs along the back of each row.
     for (let row = 0; row < 3; row++) {
       for (let col = 0; col < 4; col++) {
         const cx = -39 + col * 6.2
         const cz = 20 + row * 5.2
         const lo = 1.1
         const hi = 3.4
-        const pts = [
-          [cx - 2.8, lo, cz + 2],
-          [cx + 2.8, lo, cz + 2],
-          [cx + 2.8, hi, cz - 1.4],
-          [cx - 2.8, hi, cz - 1.4],
-        ]
-        b.quad(pts[0], pts[1], pts[2], pts[3], PANEL, [cx, -5, cz])
-        b.box([cx, 1.1, cz - 0.2], [0.35, 2.2, 0.35], DARK)
+        // a point on the panel: u across it (-1 to 1), v up it (0 low edge, 1 high edge), lifted off the surface by `up`
+        const at = (u, v, up = 0) => [cx + u * 2.8, lo + (hi - lo) * v + up, cz + 2 - 3.4 * v]
+        const below = [cx, -5, cz]
+        b.quad(at(-1, 0), at(1, 0), at(1, 1), at(-1, 1), CELL_FRAME, below)
+        const cols = 4
+        const rows = 3
+        for (let i = 0; i < cols; i++)
+          for (let j = 0; j < rows; j++) {
+            const gap = 0.045
+            const u0 = -1 + (2 * i) / cols + gap * 2
+            const u1 = -1 + (2 * (i + 1)) / cols - gap * 2
+            const v0 = j / rows + gap * 1.4
+            const v1 = (j + 1) / rows - gap * 1.4
+            b.quad(at(u0, v0, 0.05), at(u1, v0, 0.05), at(u1, v1, 0.05), at(u0, v1, 0.05), (i + j) % 2 ? PANEL : PANEL_DEEP, below)
+          }
+        // a bright glint slanting across the top corner
+        b.quad(at(-0.95, 0.76, 0.08), at(-0.62, 0.76, 0.08), at(-0.18, 0.98, 0.08), at(-0.5, 0.98, 0.08), GLINT, below)
+        // legs front and back, a brace between them, and a junction box
+        for (const x of [-2, 2]) {
+          b.box([cx + x, lo * 0.5, cz + 1.9], [0.22, lo, 0.22], DARK)
+          b.box([cx + x, hi * 0.5 - 0.3, cz - 1.3], [0.22, hi - 0.6, 0.22], DARK)
+        }
+        b.box([cx, 0.5 * (lo + hi) - 0.55, cz + 0.2], [5.4, 0.16, 0.16], DARK)
+        b.box([cx + 1.6, 0.5 * (lo + hi) - 0.45, cz - 0.9], [0.7, 0.55, 0.45], TONES.station)
       }
+      // the rail behind the row, with cable down to the tunnel
+      b.box([-27.4, 0.35, 20 + row * 5.2 - 1.9], [24.4, 0.2, 0.2], DARK)
     }
 
     // cargo crates stacked beside the hub
