@@ -17,7 +17,6 @@ import Constellations from './objects/Constellations.jsx'
 import DistantShip from './objects/DistantShip.jsx'
 import GiantPlanet from './objects/GiantPlanet.jsx'
 import Rings from './objects/Rings.jsx'
-import Asteroids from './objects/Asteroids.jsx'
 import Moon from './objects/Moon.jsx'
 import Atmosphere from './objects/Atmosphere.jsx'
 import OrbitalRocks from './objects/OrbitalRocks.jsx'
@@ -103,7 +102,6 @@ export default function Scene({ progress, ready, onWarm }) {
       <ProbeOrbit />
       <AsteroidBelt progress={progress} />
       <Rings />
-      <Asteroids />
       <Moon />
       <Atmosphere />
       <Station />
