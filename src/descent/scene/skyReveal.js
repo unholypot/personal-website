@@ -40,11 +40,12 @@ export function skyShift(index, time, pointer, e, motionOn) {
   return [e[0] * sx + e[4] * sy, e[1] * sx + e[5] * sy, e[2] * sx + e[6] * sy]
 }
 
-// The lines joining the stars do not draw themselves: they come up out of nothing, very slowly, once
-// the stars are in, and then now and then swell a very little and settle again.
-export const LINE_FADE_START = 1.2 // seconds after the scene is ready, for the first figure
-export const LINE_FADE_STAGGER = 1.1
-export const LINE_FADE_TIME = 12 // from almost nothing to resting brightness
+// The lines joining the stars do not draw themselves: they come up out of nothing, faintly, right
+// behind the stars, so the figures are there to be seen within about two seconds of the scene being
+// ready, and then now and then swell a very little and settle again.
+export const LINE_FADE_START = 0.3 // seconds after the scene is ready, for the first figure
+export const LINE_FADE_STAGGER = 0.2
+export const LINE_FADE_TIME = 2.2 // from almost nothing to resting brightness
 export const LINE_PULSE = 0.45 // how much brighter, at the top of a pulse (a fraction of resting)
 
 // How much of its resting brightness figure `index`'s lines have, 0 to 1, `elapsed` seconds in.

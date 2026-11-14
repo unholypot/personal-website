@@ -75,10 +75,14 @@ describe('lineFade', () => {
     }
   })
 
-  it('takes many seconds, so it is a slow arrival and not a drawing', () => {
-    expect(LINE_FADE_TIME).toBeGreaterThanOrEqual(8)
-    // a second after it starts it is still barely there
-    expect(lineFade(1.2 + 1, 0)).toBeLessThan(0.05)
+  it('is quick enough to be seen in the first couple of seconds, but still comes up gently', () => {
+    expect(LINE_FADE_TIME).toBeLessThanOrEqual(3)
+    expect(LINE_FADE_TIME).toBeGreaterThanOrEqual(1.5)
+    // the first figure's lines are up in about two and a half seconds, and the last by about three and a half
+    expect(lineFade(2.6, 0)).toBeGreaterThan(0.95)
+    expect(LINES_END).toBeLessThan(4)
+    // and at the very start they are barely there
+    expect(lineFade(0.4, 0)).toBeLessThan(0.05)
   })
 
   it('survives bad numbers', () => {

@@ -126,7 +126,7 @@ export default function SkyLabels({ progress }) {
         el.classList.toggle('sky-label-on', a >= 0 && !found)
       }
       if (hint.current) hint.current.classList.toggle('sky-hint-gone', skyStore.discovered || !open)
-      document.documentElement.style.cursor = a >= 0 ? 'pointer' : ''
+      document.documentElement.classList.toggle('sky-hot', a >= 0)
     }
     raf = requestAnimationFrame(tick)
 
@@ -140,7 +140,7 @@ export default function SkyLabels({ progress }) {
       window.removeEventListener('pointerdown', onDown)
       window.removeEventListener('click', onClick)
       window.removeEventListener('keydown', onKey)
-      document.documentElement.style.cursor = ''
+      document.documentElement.classList.remove('sky-hot')
       skyStore.active = -1
       skyStore.star = null
     }

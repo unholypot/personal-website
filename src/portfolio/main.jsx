@@ -4,6 +4,7 @@ import '@fontsource/bebas-neue/400.css'
 import '@fontsource/source-serif-4/400.css'
 import '@fontsource/source-serif-4/400-italic.css'
 import '@fontsource/source-serif-4/600.css'
+import '../cursor.css'
 import './portfolio.css'
 import PortfolioApp from './PortfolioApp.jsx'
 
