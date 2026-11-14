@@ -27,8 +27,8 @@ export function cloudBanks() {
     const length = Math.hypot(...v)
     return {
       direction: v.map((c) => c / length),
-      altitude: 340 + rand() * 85,
-      radius: 90 + rand() * 100,
+      altitude: 255 + rand() * 70,
+      radius: 115 + rand() * 125,
       heading: rand() * Math.PI * 2,
     }
   })

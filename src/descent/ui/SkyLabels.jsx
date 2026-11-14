@@ -162,9 +162,7 @@ export default function SkyLabels({ progress }) {
         {info && (
           <>
             <p className="sky-star-name">{info.name}</p>
-            <p className="sky-star-of">
-              In {info.constellation}, standing for my {SKILLS[star.figure].name.toLowerCase()}
-            </p>
+            <p className="sky-star-of">In {info.constellation}</p>
             {info.note && <p className="sky-star-note">{info.note}</p>}
           </>
         )}

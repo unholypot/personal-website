@@ -7,7 +7,7 @@ import { PALETTE, mix, rgb } from '../palette.js'
 import { figures, skyStore } from '../skyStore.js'
 import { frame, offset } from '../skyMath.js'
 import { VERTICES_PER_SEGMENT, fillRibbons, ribbonSides } from '../skyLines.js'
-import { REVEAL_END, revealAmount, skyShift } from '../skyReveal.js'
+import { REVEAL_END, lineFade, linePulse, revealAmount, skyShift } from '../skyReveal.js'
 import { pointer } from '../../scroll/parallax.js'
 import { motion, shared } from '../sceneMaterial.js'
 
@@ -42,7 +42,8 @@ const items = figures.map((f, index) => {
   ribbon.setAttribute('color', new Float32BufferAttribute(Array.from({ length: vertexCount }, () => cream).flat(), 3))
   ribbon.setAttribute('aAlpha', new Float32BufferAttribute(new Float32Array(vertexCount).fill(LINE_ALPHA), 1))
   ribbon.setAttribute('aSize', new Float32BufferAttribute(new Float32Array(vertexCount).fill(1), 1))
-  fillRibbons(ribbon.attributes.position.array, segments, 0, LINE_HALF_WIDTH)
+  // the lines are whole from the start; only their brightness comes and goes
+  fillRibbons(ribbon.attributes.position.array, segments, 1, LINE_HALF_WIDTH)
   // faint stars all round, thickest close in and thinning out
   const rand = rng(700 + index * 31)
   const axes = frame(f.centre)
@@ -58,14 +59,12 @@ const items = figures.map((f, index) => {
     halo: make(halo, true),
     lines: { geometry: ribbon, material: backdropMaterial(false, true) },
     dust: make(dust, true),
-    segments,
-    drawn: -1, // the reveal the ribbons were last built at
   }
 })
 const lit = figures.map(() => 0)
 
-// The skills, as constellations on the far sky. Once the opening is over they draw themselves in
-// one after another. Each sits at its own depth, drifting a little against the others and leaning
+// The skills, as constellations on the far sky. Once the opening is over the stars come in one after
+// another and the lines between them rise, very slowly, out of nothing. Each sits at its own depth, drifting a little against the others and leaning
 // differently with the pointer, and every star shimmers at its own rate. The one being looked at
 // brightens, its stars swell and a halo comes up behind them.
 export default function Constellations({ progress, ready = true }) {
@@ -90,13 +89,11 @@ export default function Constellations({ progress, ready = true }) {
       item.stars.material.uniforms.uStrength.value = pale * Math.min(1, reveal * 3)
       item.stars.material.uniforms.uScale.value = (1 + 0.6 * lit[i]) * breathe
       item.stars.material.uniforms.uTwinkle.value = motion.on ? 0.22 : 0
-      item.lines.material.uniforms.uStrength.value = pale * (1 + 4.5 * lit[i]) * Math.min(1, reveal * 6)
-      // grow the ribbons while the figure is being drawn, and once more when it is complete
-      if (reveal !== item.drawn && (reveal < 1 || item.drawn < 1)) {
-        item.drawn = reveal
-        fillRibbons(item.lines.geometry.attributes.position.array, item.segments, reveal, LINE_HALF_WIDTH)
-        item.lines.geometry.attributes.position.needsUpdate = true
-      }
+      // the lines rise slowly from nothing to just visible, then now and then swell a very little;
+      // looking at the figure lights them properly
+      const fade = motion.on ? lineFade(clock.current, i) : 1
+      const pulse = motion.on ? linePulse(time, i) : 1
+      item.lines.material.uniforms.uStrength.value = pale * fade * pulse * (1 + 4.5 * lit[i])
       item.halo.material.uniforms.uStrength.value = pale * lit[i]
       item.dust.material.uniforms.uStrength.value = pale * Math.min(1, reveal * 1.5) * (1 + 0.8 * lit[i])
       item.dust.material.uniforms.uTwinkle.value = motion.on ? 0.4 : 0

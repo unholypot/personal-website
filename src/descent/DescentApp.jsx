@@ -10,6 +10,7 @@ import Opening from './ui/Opening.jsx'
 import ScrollCue from './ui/ScrollCue.jsx'
 import SkillList from './ui/SkillList.jsx'
 import SkyLabels from './ui/SkyLabels.jsx'
+import SunCorner from './ui/SunCorner.jsx'
 import { aim, pointer } from './scroll/parallax.js'
 import { hasWebGL } from './webgl.js'
 
@@ -109,6 +110,7 @@ export default function DescentApp() {
         </Canvas>
       </div>
       <div className="scrim" aria-hidden="true" />
+      <SunCorner progress={progress} />
       <div className="captions">
         {STOPS.map((stop, index) => (
           <StopCaption key={stop.id} stop={stop} index={index} progress={progress} />

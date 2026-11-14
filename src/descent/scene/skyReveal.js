@@ -39,3 +39,28 @@ export function skyShift(index, time, pointer, e, motionOn) {
   const [sx, sy] = figureShift(index, time, pointer)
   return [e[0] * sx + e[4] * sy, e[1] * sx + e[5] * sy, e[2] * sx + e[6] * sy]
 }
+
+// The lines joining the stars do not draw themselves: they come up out of nothing, very slowly, once
+// the stars are in, and then now and then swell a very little and settle again.
+export const LINE_FADE_START = 1.2 // seconds after the scene is ready, for the first figure
+export const LINE_FADE_STAGGER = 1.1
+export const LINE_FADE_TIME = 12 // from almost nothing to resting brightness
+export const LINE_PULSE = 0.45 // how much brighter, at the top of a pulse (a fraction of resting)
+
+// How much of its resting brightness figure `index`'s lines have, 0 to 1, `elapsed` seconds in.
+export function lineFade(elapsed, index) {
+  const t = (elapsed - LINE_FADE_START - index * LINE_FADE_STAGGER) / LINE_FADE_TIME
+  const x = Number.isFinite(t) ? Math.min(1, Math.max(0, t)) : 0
+  return x * x * (3 - 2 * x) // eased at both ends, so it begins from a whisper
+}
+
+// The occasional swell, as a multiplier at or above 1. Each figure has its own slow rhythm (about a
+// quarter of a minute to a swell), and only the top of the wave counts, so most of the time it is 1.
+export function linePulse(time, index) {
+  const wave = Math.sin(time * (0.21 + index * 0.023) + index * 2.3)
+  const top = Math.max(0, wave - 0.45) / 0.55
+  return 1 + LINE_PULSE * top * top
+}
+
+// When every figure's lines are fully up.
+export const LINES_END = LINE_FADE_START + 4 * LINE_FADE_STAGGER + LINE_FADE_TIME

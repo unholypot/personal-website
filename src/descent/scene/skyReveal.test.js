@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { DRAW_TIME, DRIFT, LEAN, REVEAL_END, REVEAL_ORDER, figureShift, revealAmount } from './skyReveal.js'
+import { DRAW_TIME, DRIFT, LEAN, LINES_END, LINE_FADE_TIME, LINE_PULSE, REVEAL_END, REVEAL_ORDER, figureShift, lineFade, linePulse, revealAmount } from './skyReveal.js'
 
 describe('revealAmount', () => {
   it('is nothing before the scene is ready and everything once the last one is drawn', () => {
@@ -60,5 +60,51 @@ describe('figureShift', () => {
     expect(figureShift(0, 5, still)).not.toEqual(figureShift(0, 9, still))
     expect(figureShift(0, 5, { x: 1, y: 0 })[0]).toBeGreaterThan(figureShift(0, 5, still)[0])
     expect(Math.max(...LEAN)).toBeGreaterThan(DRIFT)
+  })
+})
+
+describe('lineFade', () => {
+  it('starts from nothing and rises slowly and smoothly to full', () => {
+    expect(lineFade(0, 0)).toBe(0)
+    expect(lineFade(LINES_END + 1, 4)).toBe(1)
+    let last = 0
+    for (let t = 0; t <= LINES_END + 1; t += 0.1) {
+      const v = lineFade(t, 2)
+      expect(v).toBeGreaterThanOrEqual(last)
+      last = v
+    }
+  })
+
+  it('takes many seconds, so it is a slow arrival and not a drawing', () => {
+    expect(LINE_FADE_TIME).toBeGreaterThanOrEqual(8)
+    // a second after it starts it is still barely there
+    expect(lineFade(1.2 + 1, 0)).toBeLessThan(0.05)
+  })
+
+  it('survives bad numbers', () => {
+    expect(lineFade(NaN, 0)).toBe(0)
+  })
+})
+
+describe('linePulse', () => {
+  it('is never dimmer than resting and never brighter than the pulse allows', () => {
+    for (let t = 0; t < 300; t += 0.5)
+      for (let i = 0; i < 5; i++) {
+        const v = linePulse(t, i)
+        expect(v).toBeGreaterThanOrEqual(1)
+        expect(v).toBeLessThanOrEqual(1 + LINE_PULSE + 1e-9)
+      }
+  })
+
+  it('is at rest most of the time, and does swell now and then', () => {
+    let resting = 0
+    let swelled = 0
+    for (let t = 0; t < 600; t += 0.5) {
+      const v = linePulse(t, 1)
+      if (v === 1) resting++
+      if (v > 1 + LINE_PULSE * 0.5) swelled++
+    }
+    expect(resting).toBeGreaterThan(400)
+    expect(swelled).toBeGreaterThan(0)
   })
 })

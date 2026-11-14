@@ -16,10 +16,10 @@ describe('cloudBanks', () => {
   it('has every direction a unit vector, at a believable height and size', () => {
     for (const b of banks) {
       expect(Math.hypot(...b.direction)).toBeCloseTo(1, 9)
-      expect(b.altitude).toBeGreaterThanOrEqual(340)
-      expect(b.altitude).toBeLessThanOrEqual(425)
-      expect(b.radius).toBeGreaterThanOrEqual(90)
-      expect(b.radius).toBeLessThanOrEqual(190)
+      expect(b.altitude).toBeGreaterThanOrEqual(255)
+      expect(b.altitude).toBeLessThanOrEqual(325)
+      expect(b.radius).toBeGreaterThanOrEqual(115)
+      expect(b.radius).toBeLessThanOrEqual(240)
     }
   })
 

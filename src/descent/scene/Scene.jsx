@@ -15,7 +15,6 @@ import SkyDetails from './objects/SkyDetails.jsx'
 import DeepSky from './objects/DeepSky.jsx'
 import Constellations from './objects/Constellations.jsx'
 import DistantShip from './objects/DistantShip.jsx'
-import ForegroundDust from './objects/ForegroundDust.jsx'
 import GiantPlanet from './objects/GiantPlanet.jsx'
 import Rings from './objects/Rings.jsx'
 import Moon from './objects/Moon.jsx'
@@ -116,7 +115,6 @@ export default function Scene({ progress, ready, onWarm }) {
       <Astronaut />
       <TrailRibbon progress={progress} />
       <Craft progress={progress} />
-      <ForegroundDust progress={progress} />
     </>
   )
 }
