@@ -94,7 +94,7 @@ export default function Scene({ progress, ready, onWarm }) {
     <>
       <Starfield progress={progress} />
       <DeepSky progress={progress} />
-      <Constellations progress={progress} />
+      <Constellations progress={progress} ready={ready} />
       <SkyDetails progress={progress} />
       <GiantPlanet />
       <ProbeOrbit />

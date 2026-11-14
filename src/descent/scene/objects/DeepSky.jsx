@@ -4,6 +4,7 @@ import { rng } from '../build.js'
 import { backdropMaterial, collect } from '../backdrop.js'
 import { PALETTE, rgb } from '../palette.js'
 import { cross, frame, offset, sky, unit } from '../skyMath.js'
+import { motion } from '../sceneMaterial.js'
 
 const cream = rgb(PALETTE.cream)
 const mustard = rgb(PALETTE.mustard)
@@ -30,6 +31,13 @@ function riverOfStars() {
     const pick = rand()
     const c = pick < 0.14 ? teal : pick < 0.26 ? mustard : pick < 0.3 ? orange : cream
     out.add(p, c, 0.22 + rand() * 0.5, 1 + rand() * 1.6)
+  }
+  // and a broad, very faint lane of dust stars either side of it, so the river has a wide milky edge
+  for (let i = 0; i < 1800; i++) {
+    const t = rand() * Math.PI * 2
+    const across = (rand() + rand() + rand() - 1.5) * 0.34
+    const p = unit([0, 1, 2].map((k) => a[k] * Math.cos(t) + along[k] * Math.sin(t) + pole[k] * across))
+    out.add(p, rand() < 0.2 ? teal : cream, 0.08 + rand() * 0.2, 1 + rand() * 0.9)
   }
   return out.geometry()
 }
@@ -72,6 +80,9 @@ export default function DeepSky({ progress }) {
     // fainter once the sky pales near the ground, but never gone
     const t = Math.min(1, Math.max(0, (progress.current - 0.5) / 0.3))
     for (const object of refs.current) if (object) object.material.uniforms.uStrength.value = 1 - 0.55 * t
+    // the river's stars shimmer, a little
+    const river = refs.current[0]
+    if (river) river.material.uniforms.uTwinkle.value = motion.on ? 0.3 : 0
   })
 
   return parts.map((part, i) => {
