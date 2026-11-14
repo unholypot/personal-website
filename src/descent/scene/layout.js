@@ -32,25 +32,12 @@ export const RADIO_ARRAY = [150, -10]
 export const LANDING_PAD = [22, -50]
 
 // The line the craft flies and the ribbon is drawn along.
-// Each point sits ahead of where the camera is at that moment, and a little to its right, so the craft leads the
-// eye down and stays in the frame (worked out from the camera's path; see CRAFT_LEAD in Craft.jsx).
+// Each point sits ahead of where the camera is at that moment, so the craft leads the eye down.
 export const PATH_POINTS = [
   [700, 2400, 4300],
-  [625, 2177, 3391],
-  [516, 1854, 2062],
-  [400, 1505, 739],
-  [278, 1409, -235],
-  [190, 1087, -457],
-  [145, 696, -268],
-  [133, 497, -66],
-  [150, 448, -28],
-  [131, 348, -15],
-  [60, 190, 15],
-  [16, 68, 37],
-  [10, 44, 40],
-  [10, 15, 20],
-  [14, 5, -6],
-  [19, 3, -32],
+  [194, 626, 137],
+  [132, 419, -38],
+  [24, 40, -42],
   [LANDING_PAD[0], 1, LANDING_PAD[1]],
 ]
 
@@ -70,13 +57,24 @@ function segment(t) {
 
 const at = (i) => PATH_POINTS[Math.max(0, Math.min(PATH_POINTS.length - 1, i))]
 
+// A smooth curve through the points, with no loops or kinks where the points are spaced unevenly: at each
+// point the curve heads the way from the point before to the point after, and each stretch takes its
+// tangents at its own length, so a short stretch is never thrown into a hook by its long neighbour.
 export function pathPoint(t) {
   const [i, u] = segment(t)
   const a = at(i - 1)
   const b = at(i)
   const c = at(i + 1)
   const d = at(i + 2)
-  return [0, 1, 2].map((k) => hermite(b[k], c[k], (c[k] - a[k]) / 2, (d[k] - b[k]) / 2, u))
+  const heading = (from, to) => {
+    const v = [to[0] - from[0], to[1] - from[1], to[2] - from[2]]
+    const len = Math.hypot(v[0], v[1], v[2]) || 1
+    return [v[0] / len, v[1] / len, v[2] / len]
+  }
+  const hb = heading(a, c)
+  const hc = heading(b, d)
+  const length = Math.hypot(c[0] - b[0], c[1] - b[1], c[2] - b[2])
+  return [0, 1, 2].map((k) => hermite(b[k], c[k], hb[k] * length, hc[k] * length, u))
 }
 
 export function pathTangent(t) {

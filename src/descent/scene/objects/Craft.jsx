@@ -1,16 +1,26 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Vector3 } from 'three'
+import { Matrix4, Vector3 } from 'three'
 import { pathPoint, pathTangent } from '../layout.js'
 import { PALETTE, TONES, mix, rgb } from '../palette.js'
 import { createBuilder } from '../build.js'
 import { createSceneMaterial, motion, shared } from '../sceneMaterial.js'
 
-const UP = new Vector3(0, 1, 0)
-const dir = new Vector3()
+// The craft's own axes each frame: its nose along the flight line, and a fixed sideways reference to settle the
+// roll, so the hull never flips or spins however steeply the line points up or down.
+const SIDE = new Vector3(1, 0, 0)
+const nose = new Vector3()
+const across = new Vector3()
+const roll = new Vector3()
+const turn = new Matrix4()
+
+// It leaves the picture just before the ground (a little earlier than it would touch): it shrinks away over
+// the last stretch, and is gone before any of it could sink into the surface.
+const GONE = 0.86
+const FADE = 0.05
 
 // How far ahead of the camera's progress the craft flies.
-export const CRAFT_LEAD = 0.03
+export const CRAFT_LEAD = 0.04
 
 // A white hull whichever way it faces: its shaded side is a cool grey, never the moon's mustard,
 // so the rocket stays white and orange against planet and ground alike.
@@ -49,14 +59,19 @@ export default function Craft({ progress }) {
     const g = group.current
     if (!g) return
     const p = progress.current
-    g.visible = p <= 0.93
+    g.visible = p < GONE
     if (!g.visible) return
     const t = Math.min(1, p + CRAFT_LEAD)
     const at = pathPoint(t)
     const tan = pathTangent(t)
     g.position.set(at[0], at[1], at[2])
-    g.quaternion.setFromUnitVectors(UP, dir.set(tan[0], tan[1], tan[2]))
-    g.scale.setScalar(Math.max(1.5, camera.position.distanceTo(g.position) * 0.019))
+    nose.set(tan[0], tan[1], tan[2])
+    roll.crossVectors(nose, SIDE).normalize() // the craft's z
+    across.crossVectors(nose, roll) // its x, so that x, y, z are right-handed
+    turn.makeBasis(across, nose, roll)
+    g.quaternion.setFromRotationMatrix(turn)
+    const away = Math.min(1, Math.max(0, (GONE - p) / FADE))
+    g.scale.setScalar(Math.max(1.5, camera.position.distanceTo(g.position) * 0.019) * (away * away * (3 - 2 * away)))
     // the flame flutters in length
     if (flame.current && motion.on) {
       const time = shared.uTime.value
