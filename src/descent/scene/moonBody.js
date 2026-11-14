@@ -69,16 +69,45 @@ const FACES = [
 // `detail` splits each icosahedron edge into detail + 1 parts.
 export function moonPositions(radius, seed, detail) {
   const craters = moonCraters(seed)
+  return facets(detail, (d) => [radius * (1 + craterHeight(d, craters)), 1, 1])
+}
+
+// A tumbling rock: a lumpy, stretched, low-poly body. Its surface is pushed in and out by a handful of
+// broad bumps, and its three axes differ, so it reads as a shard and not as a ball. The same seed
+// always gives the same rock.
+export function rockPositions(radius, seed, detail = 1) {
+  const rand = rng(seed * 61 + 5)
+  const squash = [1, 0.62 + rand() * 0.3, 0.72 + rand() * 0.28]
+  const bumps = Array.from({ length: 7 }, () => {
+    const y = rand() * 2 - 1
+    const a = rand() * Math.PI * 2
+    const ring = Math.sqrt(1 - y * y)
+    return { dir: [Math.cos(a) * ring, y, Math.sin(a) * ring], size: 0.5 + rand() * 0.6, push: (rand() - 0.55) * 0.5 }
+  })
+  const height = (d) => {
+    let h = 0
+    for (const b of bumps) {
+      const t = Math.acos(Math.min(1, Math.max(-1, dot(d, b.dir)))) / b.size
+      if (t < 1) h += b.push * (1 - t * t)
+    }
+    return h
+  }
+  return facets(detail, (d) => [radius * (1 + height(d)), squash[1], squash[2]])
+}
+
+// Shared by the bodies above: an icosphere cut into flat triangles. `shape(d)` gives, for the unit
+// direction d, the radius there and how much that direction is squashed in y and in z.
+function facets(detail, shape) {
   const n = detail + 1
   const out = new Float32Array(FACES.length * n * n * 9)
   let k = 0
   const push = (p) => {
     const l = Math.hypot(p[0], p[1], p[2])
     const d = [p[0] / l, p[1] / l, p[2] / l]
-    const r = radius * (1 + craterHeight(d, craters))
+    const [r, sy, sz] = shape(d)
     out[k++] = d[0] * r
-    out[k++] = d[1] * r
-    out[k++] = d[2] * r
+    out[k++] = d[1] * r * sy
+    out[k++] = d[2] * r * sz
   }
   for (const [ia, ib, ic] of FACES) {
     const A = CORNERS[ia]

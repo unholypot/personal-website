@@ -22,6 +22,8 @@ export default function GiantPlanet() {
         lift: 0.2,
         stripe: STRIPE,
         axis: AXIS,
+        // one oval storm, set on the face the opening camera sees, above the rings
+        storm: { direction: [-0.2166, 0.3983, 0.8918], size: 0.2 },
         // the rings shade the globe below them, as the globe shades the rings
         ring: { axis: AXIS, inner: (RING_INNER_UNSCALED * RING_SCALE) / GIANT.radius, outer: (RING_OUTER_UNSCALED * RING_SCALE) / GIANT.radius },
       }), [])

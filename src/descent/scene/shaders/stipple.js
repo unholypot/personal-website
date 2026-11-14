@@ -31,6 +31,7 @@ uniform vec3 uRingAxis;
 uniform vec3 uRingLight; // the sun as the rings see it: lower over their plane, so their shadow lands on the lit side
 uniform vec2 uRing; // inner and outer radius of the rings in body radii; 0 for none
 uniform vec4 uMoons[2]; // moons that may throw a shadow: place in body radii, and size
+uniform vec4 uStorm; // a storm's place on the body (unit direction) and its size in radians; size 0 for none
 uniform vec3 uStripe;
 uniform vec3 uAxis;
 uniform float uStriped;
@@ -47,6 +48,22 @@ void main() {
   float lat = dot(n, uAxis);
   float wave = sin(lat * 11.0 + sin(lat * 31.0) * 0.5);
   vec3 face = mix(uLit, uStripe, uStriped * step(0.45, wave));
+  // a storm: a broad oval turning slowly, a pale spiral arm round a dark eye, drawn in flat tones
+  if (uStorm.w > 0.0 && dot(n, uStorm.xyz) > 0.0) {
+    vec3 east = normalize(cross(uAxis, uStorm.xyz));
+    vec3 north = cross(uStorm.xyz, east);
+    vec2 q = vec2(dot(n, east) / 1.7, dot(n, north)) / sin(uStorm.w);
+    float e = length(q);
+    if (e < 1.0) {
+      float arm = sin(atan(q.y, q.x) * 2.0 - e * 7.0 + uTime * 0.05);
+      vec3 pale = mix(uStripe, vec3(0.96, 0.9, 0.78), 0.6);
+      vec3 deep = mix(uLit, uShadow, 0.5);
+      face = mix(mix(uLit, deep, 0.35), pale, step(0.35, arm) * step(0.34, e));
+      face = mix(face, deep, step(e, 0.3));
+      face = mix(face, pale, step(0.3, e) * step(e, 0.34));
+      face = mix(face, deep, step(0.93, e));
+    }
+  }
   if (uCratered > 0.5) {
     vec3 local = normalize(vLocalNormal);
     for (int i = 0; i < 12; i++) {
@@ -114,7 +131,8 @@ function ringLight(light, axis) {
 // `uniforms.uMoons.value[i]` is set each frame by whoever owns the moons, so their shadows fall on the body.
 // `glow` is { direction, color }: light reflected onto the unlit side from that direction.
 // `lift` slides that band toward the dark side, so more of the body stays in the light.
-export function createStippleMaterial({ lit, shadow, cell = 3, light = LIGHT, stripe = null, axis = [0, 1, 0], spread = 0.35, lift = 0, mid = 0, midEdge = 0.4, glow = null, ring = null, cratered = false }) {
+// `storm` is { direction, size }: an oval storm centred where the unit `direction` meets the body, `size` in radians.
+export function createStippleMaterial({ lit, shadow, cell = 3, light = LIGHT, stripe = null, axis = [0, 1, 0], spread = 0.35, lift = 0, mid = 0, midEdge = 0.4, glow = null, ring = null, cratered = false, storm = null }) {
   // Fixed surface-space locations: the markings rotate with the body, never the screen.
   const craters = Array.from({ length: 12 }, (_, i) => {
     const y = 1 - 2 * (i + 0.5) / 12
@@ -143,6 +161,7 @@ export function createStippleMaterial({ lit, shadow, cell = 3, light = LIGHT, st
       uRingLight: { value: ringLight(light, ring ? ring.axis : [0, 1, 0]) },
       uRing: { value: new Vector2(ring ? ring.inner : 0, ring ? ring.outer : 0) },
       uMoons: { value: [new Vector4(), new Vector4()] },
+      uStorm: { value: storm ? new Vector4(...new Vector3(...storm.direction).normalize().toArray(), storm.size) : new Vector4() },
       uStripe: { value: new Vector3(...rgb(stripe || lit)) },
       uAxis: { value: new Vector3(...axis).normalize() },
       uStriped: { value: stripe ? 1 : 0 },

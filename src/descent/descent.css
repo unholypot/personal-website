@@ -362,6 +362,29 @@ html.descent-snap .track-stop {
   opacity: 0;
 }
 
+.sky-hint-touch {
+  display: none;
+}
+
+/* fingers do not hover: say tap, and keep the line inside the frame */
+@media (hover: none) {
+  .sky-hint-mouse {
+    display: none;
+  }
+
+  .sky-hint-touch {
+    display: inline;
+  }
+}
+
+@media (max-width: 700px) {
+  .sky-hint {
+    right: calc(var(--edge) + var(--gutter));
+    max-width: 20rem;
+    text-wrap: balance;
+  }
+}
+
 /* ---------- Skills as plain text: read aloud in the animated view, shown in the plain page ---------- */
 .sr-only {
   position: absolute;

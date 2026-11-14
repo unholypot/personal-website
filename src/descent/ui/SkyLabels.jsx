@@ -106,11 +106,20 @@ export default function SkyLabels({ progress }) {
           const s = screens[a]
           const width = el.offsetWidth
           const margin = 16
-          // beside the figure, on whichever side has room
-          const right = s.x + s.r + 14
-          let x = right + width + margin < window.innerWidth ? right : s.x - s.r - 14 - width
-          x = Math.max(margin, Math.min(window.innerWidth - width - margin, x))
-          const y = Math.max(margin, Math.min(window.innerHeight - el.offsetHeight - margin, s.y - 20))
+          let x
+          let y
+          if (window.innerHeight > window.innerWidth) {
+            // a tall phone screen has no room beside a figure, and a card there would cover it: the card
+            // stays in the open sky between the figures and the caption, centred, so the figure stays in view
+            x = (window.innerWidth - width) / 2
+            y = Math.min(window.innerHeight - el.offsetHeight - margin, window.innerHeight * 0.54)
+          } else {
+            // beside the figure, on whichever side has room
+            const right = s.x + s.r + 14
+            x = right + width + margin < window.innerWidth ? right : s.x - s.r - 14 - width
+            x = Math.max(margin, Math.min(window.innerWidth - width - margin, x))
+            y = Math.max(margin, Math.min(window.innerHeight - el.offsetHeight - margin, s.y - 20))
+          }
           el.style.transform = `translate3d(${Math.round(x)}px, ${Math.round(y)}px, 0)`
         }
         // while one star is being named, its own card takes over from the figure's
@@ -143,7 +152,9 @@ export default function SkyLabels({ progress }) {
   return (
     <>
       <p className="sky-hint" ref={hint} aria-hidden="true">
-        Each constellation is a set of my skills. Hover or tap one.
+        Each constellation is a set of my skills.{' '}
+        <span className="sky-hint-mouse">Hover over one.</span>
+        <span className="sky-hint-touch">Tap one.</span>
       </p>
       <aside className="sky-label" ref={label} aria-hidden="true">
         {skill && (

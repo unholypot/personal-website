@@ -1,5 +1,22 @@
 import { describe, it, expect } from 'vitest'
-import { craterHeight, moonCraters, moonPositions } from './moonBody.js'
+import { craterHeight, moonCraters, moonPositions, rockPositions } from './moonBody.js'
+
+describe('rockPositions', () => {
+  it('is the same rock for the same seed and a different one for another', () => {
+    expect(Array.from(rockPositions(50, 3))).toEqual(Array.from(rockPositions(50, 3)))
+    expect(Array.from(rockPositions(50, 3))).not.toEqual(Array.from(rockPositions(50, 4)))
+  })
+
+  it('is flat triangles of finite numbers, lumpy and not round', () => {
+    const p = rockPositions(100, 5, 1)
+    expect(p.length % 9).toBe(0)
+    expect(Array.from(p).every(Number.isFinite)).toBe(true)
+    const radii = []
+    for (let i = 0; i < p.length; i += 3) radii.push(Math.hypot(p[i], p[i + 1], p[i + 2]))
+    expect(Math.max(...radii) - Math.min(...radii)).toBeGreaterThan(15)
+    expect(Math.max(...radii)).toBeLessThan(200)
+  })
+})
 
 const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 const angle = (a, b) => Math.acos(Math.min(1, Math.max(-1, dot(a, b))))
