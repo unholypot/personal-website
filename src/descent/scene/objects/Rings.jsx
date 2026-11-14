@@ -5,7 +5,7 @@ import { GIANT } from '../layout.js'
 import { RING_SCALE, RING_OUTER_UNSCALED } from '../satelliteLayout.js'
 import { PALETTE, mix, rgb } from '../palette.js'
 import { LIGHT, createBuilder, rng } from '../build.js'
-import { GRAIN_GLSL, createSceneMaterial, motion, shared } from '../sceneMaterial.js'
+import { createSceneMaterial, motion, shared } from '../sceneMaterial.js'
 
 // Ringlets from the inside out: [inner radius, outer radius, colour]. Broad bands, hair-thin
 // ones and dark gaps between, so the system reads as many rings and not one flat disc.
@@ -54,13 +54,13 @@ export default function Rings() {
       for (let i = 0; i < SEGMENTS; i++) {
         // the band is not a clean stripe: each stretch is a little paler or darker, its edges wander,
         // and now and then a stretch is thin or missing, as in a ring made of clumps and gaps
-        const tint = (rand() - 0.5) * 0.3
+        const tint = (rand() - 0.5) * 0.12
         const lit = mix(base, tint > 0 ? cream : navy, Math.abs(tint))
         const dim = mix(lit, navy, 0.62)
         const ragged = width > 60
-        const inner = innerEdge + (ragged ? rand() * 0.14 * width : 0)
-        const outer = outerEdge - (ragged ? rand() * 0.14 * width : 0)
-        if (ragged && rand() < 0.04) continue
+        const inner = innerEdge + (ragged ? rand() * 0.05 * width : 0)
+        const outer = outerEdge - (ragged ? rand() * 0.05 * width : 0)
+        if (ragged && rand() < 0.01) continue
         const a0 = (i / SEGMENTS) * Math.PI * 2
         const a1 = ((i + 1) / SEGMENTS) * Math.PI * 2
         const mid = (a0 + a1) / 2
@@ -84,9 +84,9 @@ export default function Rings() {
 
 // What the rings are really made of: countless chunks of ice and rock, each its own little body, all
 // circling the planet, the inner ones quicker. They are drawn as small flat squares in the ring colours,
-// scattered through the bands (thickest in the broad ones, a few in the gaps), with a little thickness
-// to the sheet and a slow ripple through it. The planet's shadow darkens the ones it falls on.
-const DEBRIS = 15000
+// scattered through the bands (thickest in the broad ones, hardly any in the gaps), with a little thickness
+// to the sheet and a slow ripple through it. They are small and only a shade off their band's colour. The planet's shadow darkens the ones it falls on.
+const DEBRIS = 6500
 
 function debrisGeometry() {
   const rand = rng(1313)
@@ -101,7 +101,7 @@ function debrisGeometry() {
   const cream = rgb(PALETTE.cream)
   for (let i = 0; i < DEBRIS; i++) {
     let r
-    if (rand() < 0.06) {
+    if (rand() < 0.015) {
       // a few stray chunks out in the gaps and round the edges
       r = RINGLETS[0][0] - 60 + rand() * (RING_OUTER_UNSCALED - RINGLETS[0][0] + 120)
     } else {
@@ -127,9 +127,10 @@ function debrisGeometry() {
     angle.push(a)
     // thickness: a sheet a few tens of units deep, bending in a slow wave round the ring
     lift.push((rand() + rand() + rand() - 1.5) * 18 + Math.sin(a * 3 + r * 0.01) * 6)
-    size.push(rand() < 0.03 ? 22 + rand() * 24 : 6 + rand() * 9)
-    const shade = 0.78 + rand() * 0.38
-    const tint = rand() < 0.08 ? mix(base, cream, 0.5) : base
+    size.push(rand() < 0.02 ? 12 + rand() * 8 : 4 + rand() * 4)
+    // each chunk only a shade lighter or darker than its band, so they read as texture in the band
+    const shade = 0.9 + rand() * 0.2
+    const tint = rand() < 0.04 ? mix(base, cream, 0.35) : base
     color.push(tint[0] * shade, tint[1] * shade, tint[2] * shade)
   }
   const g = new BufferGeometry()
@@ -168,15 +169,15 @@ void main() {
   vColor = color * mix(1.0, 0.28, inShadow);
   vec4 view = viewMatrix * world;
   gl_Position = projectionMatrix * view;
-  gl_PointSize = clamp(aSize * uPx / max(1.0, -view.z), 1.1 * uDpr, 4.0 * uDpr);
+  gl_PointSize = clamp(aSize * uPx / max(1.0, -view.z), 1.0 * uDpr, 2.6 * uDpr);
 }
 `
 
+// flat colour, no grain: the picture's own grain lies over the whole frame already
 const DEBRIS_FRAG = /* glsl */ `
-${GRAIN_GLSL}
 varying vec3 vColor;
 void main() {
-  gl_FragColor = vec4(grain(vColor), 1.0);
+  gl_FragColor = vec4(vColor, 1.0);
 }
 `
 
