@@ -519,6 +519,22 @@ summary:hover .project-title {
   }
 }
 
+/* contact links with their small icon beside them */
+.with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.with-icon .icon {
+  flex: none;
+  transition: transform 0.15s;
+}
+
+.with-icon:hover .icon {
+  transform: translateY(-1px) scale(1.08);
+}
+
 /* ---------- contact and footer ---------- */
 .contact-email {
   display: flex;
@@ -555,7 +571,8 @@ summary:hover .project-title {
   }
 
 
-  .button {
+  .button,
+  .with-icon .icon {
     transition: none;
   }
 }

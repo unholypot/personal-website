@@ -12,7 +12,7 @@ export const STOPS = [
     window: [0, 0, 0.05, 0.09],
     kicker: 'Engineering student at QUT',
     title: PROFILE.name,
-    body: 'Software on one side, electrical on the other. Scroll to begin the descent.',
+    body: 'I build things that sit between code and circuits. Scroll down to see them.',
   },
   {
     id: 'approach',

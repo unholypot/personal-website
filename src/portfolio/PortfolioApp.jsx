@@ -6,6 +6,7 @@ import { SKILLS } from '../content/skills.js'
 import ConstellationFigure from './ConstellationFigure.jsx'
 import MoonBadge from './MoonBadge.jsx'
 import SaturnBadge from './SaturnBadge.jsx'
+import { GitHubIcon, LinkedInIcon, MailIcon } from './Icons.jsx'
 
 const readTheme = () => (document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light')
 
@@ -53,7 +54,7 @@ export default function PortfolioApp() {
           <a href="#contact">Contact</a>
         </nav>
         <div className="bar-end">
-          <a href={ROUTES.descent}>The descent</a>
+          <a href={ROUTES.descent}>Home</a>
           <button type="button" onClick={flip} aria-pressed={theme === 'dark'}>
             {theme === 'dark' ? 'Day mode' : 'Night mode'}
           </button>
@@ -69,9 +70,9 @@ export default function PortfolioApp() {
           <p className="intro-open">{PROFILE.availability}.</p>
           <p className="intro-links">
             <a className="button" href={PROFILE.cv}>Download CV</a>
-            <a href={`mailto:${PROFILE.email}`}>Email</a>
-            <a href={PROFILE.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
-            <a href={PROFILE.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a className="with-icon" href={`mailto:${PROFILE.email}`}><MailIcon />Email</a>
+            <a className="with-icon" href={PROFILE.linkedin} target="_blank" rel="noopener noreferrer"><LinkedInIcon />LinkedIn</a>
+            <a className="with-icon" href={PROFILE.github} target="_blank" rel="noopener noreferrer"><GitHubIcon />GitHub</a>
           </p>
         </section>
 
@@ -152,8 +153,8 @@ export default function PortfolioApp() {
           </p>
           <p className="intro-links">
             <a className="button" href={PROFILE.cv}>Download CV</a>
-            <a href={PROFILE.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
-            <a href={PROFILE.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a className="with-icon" href={PROFILE.linkedin} target="_blank" rel="noopener noreferrer"><LinkedInIcon />LinkedIn</a>
+            <a className="with-icon" href={PROFILE.github} target="_blank" rel="noopener noreferrer"><GitHubIcon />GitHub</a>
           </p>
         </section>
       </main>
@@ -161,7 +162,7 @@ export default function PortfolioApp() {
       <footer className="foot">
         <p>Allen Saji, 2026. Built with React and three.js.</p>
         <p>
-          <a href={ROUTES.descent}>Back to the descent</a>
+          <a href={ROUTES.descent}>Back to the start</a>
         </p>
       </footer>
     </>

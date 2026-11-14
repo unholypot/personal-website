@@ -1,10 +1,10 @@
 // Facts about Allen and where things live. Every page reads from here, so each fact is written once.
 
-// Where the pages are. When the new design replaces the old site, change these and nothing else.
+// Where the pages are.
 export const ROUTES = {
-  descent: '/descent/',
+  descent: '/',
   portfolio: '/portfolio/',
-  classic: '/',
+  classic: '/classic/',
 }
 
 export const PROFILE = {

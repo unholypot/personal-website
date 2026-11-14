@@ -9,7 +9,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(import.meta.dirname, 'index.html'),
-        descent: resolve(import.meta.dirname, 'descent/index.html'),
+        classic: resolve(import.meta.dirname, 'classic/index.html'),
         portfolio: resolve(import.meta.dirname, 'portfolio/index.html'),
       },
     },

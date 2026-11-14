@@ -14,6 +14,12 @@ This website serves as a central place for:
 - sharing my resume
 - linking to my GitHub, LinkedIn, and other work
 
+## Pages
+
+- `/` the scroll-driven space descent (three.js), the landing page
+- `/portfolio/` the compact portfolio: projects, skills, contact, CV
+- `/classic/` the previous version of the site
+
 ## Features
 
 - Responsive design for desktop and mobile
