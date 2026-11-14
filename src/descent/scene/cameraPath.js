@@ -7,7 +7,7 @@ export const KEYFRAMES = [
   // the opening looks a little below the giant, which lifts the moon into the frame
   { p: 0.0, position: [600, 2600, 5000], target: [GIANT.center[0], GIANT.center[1] - 650, GIANT.center[2]], fov: 50 },
   { p: 0.25, position: [320, 1330, 120], target: [36, 1293, -519], fov: 42 },
-  { p: 0.4, position: [120, 800, 260], target: [0, 300, 0], fov: 55 },
+  { p: 0.4, position: [120, 800, 260], target: [0, 560, 0], fov: 55 },
   { p: 0.5, position: [70, 560, 200], target: [51, 397, -165], fov: 60 },
   // the drone stop: the camera arrives, drifts slowly past the drone, then leaves
   { p: 0.68, position: [-28, 78, 160], target: [-76, 15, -232], fov: 55 },

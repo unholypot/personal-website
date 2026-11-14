@@ -46,10 +46,11 @@ html {
   opacity: 1;
 }
 
-/* The scroll length: five stretches, one per stop, six screens in all. */
+/* The scroll length: five stretches, one per stop. The captions arrive a quarter of the way apart, which
+   is a little over a screen and a bit of scrolling each. */
 .track-stop {
-  height: 120vh;
-  height: 120lvh;
+  height: 108vh;
+  height: 108lvh;
 }
 
 /* Reduced motion: one screen per stop, and the page settles on each. */

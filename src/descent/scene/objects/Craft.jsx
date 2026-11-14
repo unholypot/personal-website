@@ -10,7 +10,7 @@ const UP = new Vector3(0, 1, 0)
 const dir = new Vector3()
 
 // How far ahead of the camera's progress the craft flies.
-export const CRAFT_LEAD = 0.04
+export const CRAFT_LEAD = 0.03
 
 // A white hull whichever way it faces: its shaded side is a cool grey, never the moon's mustard,
 // so the rocket stays white and orange against planet and ground alike.

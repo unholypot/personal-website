@@ -32,12 +32,25 @@ export const RADIO_ARRAY = [150, -10]
 export const LANDING_PAD = [22, -50]
 
 // The line the craft flies and the ribbon is drawn along.
-// Each point sits ahead of where the camera is at that moment, so the craft leads the eye down.
+// Each point sits ahead of where the camera is at that moment, and a little to its right, so the craft leads the
+// eye down and stays in the frame (worked out from the camera's path; see CRAFT_LEAD in Craft.jsx).
 export const PATH_POINTS = [
   [700, 2400, 4300],
-  [300, 1200, -150],
-  [40, 330, 60],
+  [625, 2177, 3391],
+  [516, 1854, 2062],
+  [400, 1505, 739],
+  [278, 1409, -235],
+  [190, 1087, -457],
+  [145, 696, -268],
+  [133, 497, -66],
+  [150, 448, -28],
+  [131, 348, -15],
+  [60, 190, 15],
+  [16, 68, 37],
   [10, 44, 40],
+  [10, 15, 20],
+  [14, 5, -6],
+  [19, 3, -32],
   [LANDING_PAD[0], 1, LANDING_PAD[1]],
 ]
 
