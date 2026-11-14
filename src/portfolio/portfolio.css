@@ -230,11 +230,12 @@ a:hover {
     margin-bottom: 0.2rem;
   }
 
+  /* the little planet stays beside the address instead of floating above it */
   .block .contact-email {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+    gap: 0.6rem;
+    font-size: 1rem;
   }
+
 }
 
 /* ---------- intro ---------- */
